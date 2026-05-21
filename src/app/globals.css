@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+@theme {
+  --color-black: rgb(14 14 12);
+  --color-white: rgb(255 255 255);
+  --color-grey: rgb(93 100 114);
+  --color-off-white: rgb(244 239 233);
+  --color-red: rgb(232 26 45);
+  --color-red-light: rgb(255 138 122);
+  --color-blue: rgb(70 113 255);
+  --color-blue-light: rgb(105 164 255);
+  --color-orange: rgb(246 133 31);
+  --color-orange-light: rgb(249 161 89);
+
+  --font-headline: var(--next-font-headline), sans-serif;
+  --font-body: var(--next-font-body), sans-serif;
+}
