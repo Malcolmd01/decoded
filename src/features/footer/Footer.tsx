@@ -16,9 +16,14 @@ export function Footer() {
     </span>
     <a
       href={`mailto:${footerContent.email}`}
-      className="font-headline text-3xl font-semibold tracking-tight transition-opacity hover:opacity-80 md:text-4xl"
+      className="group relative overflow-hidden font-headline text-3xl font-semibold tracking-tight md:text-4xl"
     >
-      {footerContent.email}
+      <span className="block transition-transform duration-300 ease-in-out group-hover:-translate-y-full">
+        {footerContent.email}
+      </span>
+      <span className="absolute inset-0 block translate-y-full transition-transform duration-300 ease-in-out group-hover:translate-y-0">
+        {footerContent.email}
+      </span>
     </a>
   </div>
 

@@ -4,5 +4,8 @@
       "mcp__framer-mcp__getNodeXml",
       "mcp__framer-mcp__getProjectXml"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "framer-mcp"
+  ]
 }

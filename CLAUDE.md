@@ -80,7 +80,7 @@ MCP plugin must stay open in Framer (`Cmd/Ctrl+K` → search `MCP`).
 2. `mcp__framer-mcp__getNodeXml` — read target node
 3. Extract all copy from Framer — never hardcode placeholders
 
-**Node IDs:** Homepage `/` `augiA20Il` · Footer `SfyLHF1Qk` · Basic card `yGpvNnjfT` · Formats card `qNoQUxbRC` · FAQs `V_ypTBFNP` · Accordion `RhoLTykGG` · Button `qgP76QxBv`
+**Node IDs:** Homepage `/` `augiA20Il` · Footer `SfyLHF1Qk` · Footer email link `DXmBIrfwT` · Basic card `yGpvNnjfT` · Formats card `qNoQUxbRC` · FAQs `V_ypTBFNP` · Accordion `RhoLTykGG` · Button `qgP76QxBv`
 
 ---
 
@@ -122,7 +122,7 @@ Hero → About → Ticker → Formats → Ticker → Reasons → FAQs → Footer
 |---|---|---|
 | Hero | white | sticky, min-h-screen |
 | About | black | h-screen, text-red |
-| Ticker | white | infinite marquee, 110px height, Clash Display |
+| Ticker | white | infinite marquee, 110px height, Clash Display · starts fully visible, scrolls left |
 | Formats | red | 6 stacked cards |
 | Reasons | black | 2×2 grid, red card bg |
 | FAQs | black | accordion, grey/30 container |
@@ -138,6 +138,7 @@ Hero → About → Ticker → Formats → Ticker → Reasons → FAQs → Footer
 - Left column max-width: `max-w-[718px]`
 - Right column max-width: `max-w-[467px]`
 - Card grid gap: `gap-[30px]`
+- H2 section heading scale: `text-[32px] md:text-[48px] lg:text-[64px]` (Formats, Reasons)
 
 ---
 
@@ -156,6 +157,10 @@ viewport       // { once: true, margin: "-80px" }
 ```
 
 Reduced motion: `useReducedMotion()` from `hooks/useReducedMotion.ts` — pass `{}` variants when true.
+
+**Ticker seamless loop:** `TickerContent` uses `pl-8 md:pl-[30px]` (left padding only, not `px-8`). Right padding causes a double-gap at the loop junction. Animation: `x: ["0%", "-50%"]` — starts fully visible, scrolls left.
+
+**Roll-up hover (e.g. footer email):** Use Tailwind CSS transitions, not Framer Motion. Pattern: `overflow-hidden` container with two stacked `<span>`s; first: `group-hover:-translate-y-full`; second: `translate-y-full group-hover:translate-y-0`. Add `group` to the parent link.
 
 ---
 
