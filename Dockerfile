@@ -34,7 +34,7 @@ COPY --from=builder --chown=nodejs:nodejs /app/public ./public
 COPY --from=builder --chown=nodejs:nodejs /app/.next ./.next
 COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nodejs:nodejs /app/package.json ./package.json
-COPY --from=builder --chown=nodejs:nodejs /app/next.config.mjs ./next.config.mjs
+COPY --from=builder --chown=nodejs:nodejs /app/next.config.ts ./next.config.ts
 
 USER nodejs
 
