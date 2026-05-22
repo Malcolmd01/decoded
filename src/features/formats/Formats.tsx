@@ -17,8 +17,8 @@ export function Formats() {
           </p>
         </header>
         <div className="flex flex-col gap-8">
-          {formatsContent.formats.map((format) => (
-            <FormatCard key={format.name} format={format} />
+          {formatsContent.formats.map((format, i) => (
+            <FormatCard key={format.name} format={format} priority={i === 0} />
           ))}
         </div>
       </div>

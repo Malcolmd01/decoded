@@ -35,9 +35,9 @@ const GRID_STYLE = {
   gridTemplateRows:    `repeat(${GRID}, 1fr)`,
 } as const;
 
-type Props = { format: Format };
+type Props = { format: Format; priority?: boolean };
 
-export function FormatCard({ format }: Props) {
+export function FormatCard({ format, priority = false }: Props) {
   const articleRef = useRef<HTMLElement>(null);
   const [scope, animate] = useAnimate();
   const reduced = useReducedMotion();
@@ -96,8 +96,9 @@ export function FormatCard({ format }: Props) {
           fill
           alt=""
           aria-hidden
+          sizes="(min-width: 768px) 50vw, 100vw"
           className="object-cover"
-          loading="lazy"
+          priority={priority}
         />
 
         {!reduced && (
