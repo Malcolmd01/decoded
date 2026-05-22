@@ -39,9 +39,10 @@ export function Ticker() {
     >
       <motion.div
         className="flex w-max"
-        animate={{ x: ["0%", "-50%"] }}
-        transition={{ repeat: Infinity, ease: "linear", duration: 20 }}
+        animate={{ x: ["0%", "-33.33%"] }}
+        transition={{ repeat: Infinity, ease: "linear", duration: 30 }}
       >
+        <TickerContent />
         <TickerContent />
         <TickerContent />
       </motion.div>

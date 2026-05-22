@@ -1,0 +1,26 @@
+<svg viewBox="0 0 1440 900" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="background:#0e0e0c">
+  <defs>
+    <filter id="hero-glow-ambient" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="90"/>
+    </filter>
+    <filter id="hero-glow-mid" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="35"/>
+    </filter>
+  </defs>
+
+  <!-- Ambient layer (d1 — wave state A) -->
+  <path
+    fill="rgb(232 26 45)"
+    opacity="0.45"
+    filter="url(#hero-glow-ambient)"
+    d="M0,540 C360,420 720,660 1080,520 C1260,450 1380,590 1440,540 L1440,900 L0,900 Z"
+  />
+
+  <!-- Definition layer (d1 — wave state A) -->
+  <path
+    fill="rgb(232 26 45)"
+    opacity="0.65"
+    filter="url(#hero-glow-mid)"
+    d="M0,540 C360,420 720,660 1080,520 C1260,450 1380,590 1440,540 L1440,900 L0,900 Z"
+  />
+</svg>

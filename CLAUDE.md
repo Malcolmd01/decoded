@@ -120,7 +120,7 @@ Hero → About → Ticker → Formats → Ticker → Reasons → FAQs → Footer
 
 | Section | bg | Notes |
 |---|---|---|
-| Hero | white | sticky, min-h-screen |
+| Hero | black | sticky, min-h-screen · animated SVG wave bg (`HeroWave.tsx`) |
 | About | black | h-screen, text-red |
 | Ticker | white | infinite marquee, 110px height, Clash Display · starts fully visible, scrolls left |
 | Formats | red | 6 stacked cards |
@@ -158,7 +158,11 @@ viewport       // { once: true, margin: "-80px" }
 
 Reduced motion: `useReducedMotion()` from `hooks/useReducedMotion.ts` — pass `{}` variants when true.
 
-**Ticker seamless loop:** `TickerContent` uses `pl-8 md:pl-[30px]` (left padding only, not `px-8`). Right padding causes a double-gap at the loop junction. Animation: `x: ["0%", "-50%"]` — starts fully visible, scrolls left.
+**Hero wave background (`HeroWave.tsx`):** Two `motion.path` layers morph through 6 randomly generated SVG path keyframes (`repeatType: "mirror"`). Paths are generated client-side only in `useEffect` (never on server) to avoid hydration mismatch — initial state uses `STATIC_PATH` on both server and client. Both arrays are batched into a single `wavePaths` state object. Layer 1: ambient glow (`stdDeviation 90`, opacity 0.45, 28s). Layer 2: definition glow (`stdDeviation 35`, opacity 0.65, 22s) — different durations let layers drift for organic motion. Static preview at `public/hero-wave.svg`. `feGaussianBlur` filter bounds must use `x/y/width/height` percentage overrides or the blur clips at the SVG edge.
+
+**About blinds reveal (`About.tsx`):** `"use client"`. Words rendered as `<span data-word>` on SSR (fully readable). After mount, `useEffect` calls `measureLines()` which groups words by `offsetTop` (4px tolerance) into visual lines. Each line renders as `relative block overflow-hidden` with a static text span underneath and an `absolute inset-0 bg-white` `motion.span` on top. The white panel starts at `x: 0%` (covering text) and slides to `±105%` on scroll-in. Uses `variants` with `hidden: { transition: { duration: 0 } }` for instant off-screen reset so the animation replays every time the section enters the viewport (`once: false`).
+
+**Ticker seamless loop:** `TickerContent` uses `pl-8 md:pl-[30px]` (left padding only, not `px-8`). Right padding causes a double-gap at the loop junction. Renders **3 copies** with `x: ["0%", "-33.33%"]` (= one copy width). Two copies caused a visible gap on screens wider than ~1100px. Duration 30s (scaled from 20s to keep same visual speed with 3 copies).
 
 **Roll-up hover (e.g. footer email):** Use Tailwind CSS transitions, not Framer Motion. Pattern: `overflow-hidden` container with two stacked `<span>`s; first: `group-hover:-translate-y-full`; second: `translate-y-full group-hover:translate-y-0`. Add `group` to the parent link.
 
