@@ -12,7 +12,7 @@ export function Formats() {
           <h2 className="max-w-[718px] font-headline text-[32px] font-semibold leading-[1.05] tracking-wide md:text-[48px] lg:text-[64px]">
             {formatsContent.title}
           </h2>
-          <p className="max-w-[467px] font-body text-[16px] font-regular leading-relaxed text-black ">
+          <p className="max-w-[467px] font-body text-[16px] font-semibold leading-relaxed text-black">
             {formatsContent.intro}
           </p>
         </header>

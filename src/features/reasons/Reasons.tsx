@@ -11,7 +11,7 @@ export function Reasons() {
       <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-16">
         <header className="flex flex-col items-start justify-between gap-10 md:flex-row md:items-end">
           <div className="flex max-w-[718px] flex-col gap-3">
-            <h2 className="font-headline tracking-wide text-[32px] font-semibold leading-[1.05] tracking-tight md:text-[48px] lg:text-[64px]">
+            <h2 className="font-headline text-[32px] font-semibold leading-[1.05] tracking-wide md:text-[48px] lg:text-[64px]">
               <span className="text-red">{reasonsContent.title1}</span>
               {" "}
               <span className="text-white">{reasonsContent.title2}</span>

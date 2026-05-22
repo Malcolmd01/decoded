@@ -46,11 +46,11 @@ export function About() {
   return (
     <section
       id="about"
-      className="relative z-10 flex min-h-screen items-center justify-center bg-black px-5 py-[32px] text-red md:px-8"
+      className="relative z-10 flex min-h-screen items-center justify-center bg-black p-[100px] text-red md:px-8"
     >
       <h2
         ref={headingRef}
-        className="max-w-[1440px] text-center font-headline text-4xl font-semibold leading-[1.05] tracking-normal md:text-6xl lg:text-7xl"
+        className="max-w-[1440px] text-center font-headline text-4xl font-semibold leading-[1.05] tracking-normal md:text-5xl lg:text-6xl"
       >
         {showAnimation ? (
           // Blinds reveal — text is static underneath; a white panel covers each line

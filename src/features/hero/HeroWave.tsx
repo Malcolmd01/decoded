@@ -23,9 +23,9 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
 // The two layers use independent path sets and different durations (28s / 22s)
 // so they slowly drift in and out of phase for an organic, non-repeating look.
 function generateWavePath(): string {
-  const base = 400;
-  const spread = 150;
-  const r = () => Math.round(base + (Math.random() - 0.5) * 2 * spread);
+  const base = 700;
+  const spread = 250;
+  const r = () => Math.round((Math.random() * base) + (Math.random() - 0.5) * 2 * spread);
   return `M0,${r()} C360,${r()} 720,${r()} 1080,${r()} C1260,${r()} 1380,${r()} 1440,${r()} L1440,900 L0,900 Z`;
 }
 
@@ -56,7 +56,7 @@ export function HeroWave() {
     ambient: [STATIC_PATH],
     mid: [STATIC_PATH],
   });
-  
+
   // Client-only init — Math.random() must not run on the server (hydration mismatch).
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -95,11 +95,11 @@ export function HeroWave() {
           portion of the glow. Raise opacity (0–1) to intensify the halo.   */}
         <motion.path
           fill="rgb(232 26 45)"
-          opacity={0.45}
+          opacity={0.25}
           filter="url(#hero-glow-ambient)"
           d={wavePaths.ambient[0]}
           animate={reduced ? undefined : { d: wavePaths.ambient }}
-          transition={makeTransition(28)}
+          transition={makeTransition(15)}
         />
 
         {/* --- Definition layer ---

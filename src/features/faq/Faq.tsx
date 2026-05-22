@@ -10,7 +10,7 @@ export function Faq() {
     >
       <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-16">
         <header className="flex w-full max-w-[718px] flex-col gap-3 self-start">
-          <h2 className="font-headline text-4xl font-semibold leading-[1.05] tracking-tight md:text-6xl lg:text-7xl">
+          <h2 className="font-headline text-[32px] font-semibold leading-[1.05] tracking-wide md:text-[48px] lg:text-[64px]">
             <span className="text-red">{faqContent.title1}</span>
             {" "}
             <span className="text-white">{faqContent.title2}</span>
