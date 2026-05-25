@@ -20,6 +20,7 @@ src/
 ├── app/                        # Next.js App Router (layout.tsx, page.tsx, globals.css)
 ├── components/                 # Shared primitives: Button, BrutalismIcon
 ├── features/                   # One folder per page section — self-contained
+│   ├── intro/
 │   ├── hero/
 │   ├── about/
 │   ├── ticker/
@@ -157,6 +158,8 @@ viewport          // { once: true, margin: "-80px" }
 ```
 
 Reduced motion: `useReducedMotion()` from `hooks/useReducedMotion.ts` — pass `{}` variants when true.
+
+**Cinematic intro splash (`features/intro/CinematicSplash.tsx`):** `"use client"`. 5-phase timed animation that runs once on first load. SVG assets in `public/`: `red-logo-1.svg` + `red-logo-2.svg` (two halves), `red-logo.svg` (assembled icon), `decoded-3.svg` ("de"), `decoded-4.svg` ("oded"). Phase sequence: **ENTRY** (t=0) pieces 1+2 fly in diagonally → **ASSEMBLE** (t=900ms) swap for red logo → **REVEAL** (t=1400ms) "de"/"oded" slide out from behind the icon → **LOCK** (t=2000ms) composition translates+scales to match the `[data-hero-logo]` element's exact position → **EXIT** (t=3200ms) overlay fades to black, component unmounts at t=4000ms. `rowRef` (inner flex row) is measured separately from `compositionRef` (padded wrapper) so scale and x/y are accurate. Scale formula: `(heroWidth / rowWidth) × INTRO_SCALE` — compensates for the parent transform already applied at measure time. Piece sizing: `clamp(40px, 11vw, 140px)` height; text pieces use `w-auto` (not square) to follow SVG aspect ratio. Reduced motion: instant-skip via `useReducedMotion()` — splash never shows, `onComplete` fires immediately. `onComplete` is stabilised with a ref so the timer effect never restarts on re-render.
 
 **Hero wave background (`HeroWave.tsx`):** Two `motion.path` layers morph through 6 randomly generated SVG path keyframes (`repeatType: "mirror"`). Paths are generated client-side only in `useEffect` (never on server) to avoid hydration mismatch — initial state uses `STATIC_PATH` on both server and client. Both arrays are batched into a single `wavePaths` state object. Layer 1: ambient glow (`stdDeviation 90`, opacity 0.25, 15s). Layer 2: definition glow (`stdDeviation 35`, opacity 0.65, 22s) — different durations let layers drift for organic motion. `generateWavePath` uses `base 700` / `spread 250` for the current amplitude. Static preview at `public/hero-wave.svg`. `feGaussianBlur` filter bounds must use `x/y/width/height` percentage overrides or the blur clips at the SVG edge.
 

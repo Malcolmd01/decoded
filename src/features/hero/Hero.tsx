@@ -11,7 +11,7 @@ export function Hero() {
     >
       <HeroWave />
 <div className="relative z-[2] flex w-full max-w-[1440px] flex-col items-center justify-center overflow-hidden px-5 mt-12 md:px-8">
-  <div className="flex w-full flex-col items-center justify-center">
+  <div data-hero-logo className="flex w-full flex-col items-center justify-center">
     <Image
       src={heroContent.logo.src}
       alt={heroContent.logo.alt}
@@ -31,9 +31,11 @@ export function Hero() {
       {heroContent.headline}
     </h1>
 
-    <Button variant="light" aria-label={heroContent.cta}>
-      {heroContent.cta}
-    </Button>
+    <a href="https://forms.cloud.microsoft/e/YM7Wky1aAG" target="_blank" rel="noopener noreferrer">
+      <Button variant="light" aria-label={heroContent.cta}>
+        {heroContent.cta}
+      </Button>
+    </a>
   </div>
 </div>
     </section>

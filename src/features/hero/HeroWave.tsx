@@ -67,7 +67,13 @@ export function HeroWave() {
   }, []);
 
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-0">
+    <motion.div
+      aria-hidden
+      className="pointer-events-none absolute inset-0"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 3.2, duration: 2, ease: "easeIn" }}
+    >
       <svg
         className="h-full w-full"
         viewBox="0 0 1440 900"
@@ -114,7 +120,7 @@ export function HeroWave() {
           transition={makeTransition(22)}
         />
       </svg>
-    </div>
+    </motion.div>
   );
 }
 

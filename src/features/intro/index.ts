@@ -1,0 +1,1 @@
+export { CinematicSplash } from "./CinematicSplash";
