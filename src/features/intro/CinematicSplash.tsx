@@ -86,6 +86,7 @@ export function CinematicSplash({
 
   useEffect(() => {
     if (prefersReduced) { onCompleteRef.current?.(); return; }
+    history.scrollRestoration = "manual";
     window.scrollTo(0, 0);
     document.body.style.overflow = "hidden";
     const t1 = setTimeout(() => setAssembled(true), timings.assemble);
