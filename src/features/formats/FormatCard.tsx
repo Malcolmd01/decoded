@@ -18,7 +18,7 @@ import type { Format } from "./formats.data";
 // JITTER:          max extra delay on red  → linger above the line
 // BLEED:           max early-start on white → bleed red below the line
 
-const GRID        = 20;
+const GRID        = 15;
 const CELLS       = Array.from({ length: GRID * GRID }, (_, i) => i);
 const PIXEL_COLOR = "rgb(232, 26, 45)";
 
