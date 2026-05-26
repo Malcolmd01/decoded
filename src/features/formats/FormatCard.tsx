@@ -92,7 +92,7 @@ export function FormatCard({ format, priority = false }: Props) {
 
       <div className="relative aspect-square w-full overflow-hidden rounded-lg">
         <Image
-          src="/placeholder.jpg"
+          src={`/${format.name.toLowerCase().replace(/\s/g, "-")}.png`}
           fill
           alt=""
           aria-hidden
