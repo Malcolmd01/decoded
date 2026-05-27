@@ -1,4 +1,3 @@
-import { BrutalismIcon } from "@/components";
 import { Accordion } from "./Accordion";
 import { faqContent } from "./faq.data";
 

@@ -51,17 +51,14 @@ export function FormatCard({ format, priority = false }: Props) {
       const progress = row / (GRID - 1);
       const base     = REVEAL_DELAY + progress * REVEAL_DURATION;
 
-      // White: subtract a random bleed offset — some cells clear early,
-      // briefly exposing red in the rows just below the scan line
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+      // White: subtract a random bleed offset — clears early, briefly exposing red below the scan line
       animate(
         scope.current.querySelector(`[data-white][data-idx="${idx}"]`),
         { opacity: 0 },
         { duration: WHITE_DUR, delay: base - Math.random() * BLEED, ease: "easeOut" }
       );
 
-      // Red: add a random jitter delay — fragments linger above the line
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+      // Red: add a random jitter delay — fragments linger above the scan line
       animate(
         scope.current.querySelector(`[data-red][data-idx="${idx}"]`),
         { opacity: 0 },

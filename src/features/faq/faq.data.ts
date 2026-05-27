@@ -10,32 +10,23 @@ export const faqContent = {
     {
       question: "HOW OFTEN DOES DECODED RUN?",
       answer:
-        "Sessions are scheduled regularly throughout the year. Frequency depends on speaker availability and team planning. Attendance grows every quarter.",
+        "Sessions are scheduled regularly, frequency depends on speaker availability and team planning.",
     },
     {
       question: "WHO CAN BE A SPEAKER?",
       answer:
-        "Any internal employee with something worth sharing — from any team, any level. External experts, founders, and researchers are equally welcome. No prior speaking experience required.",
+        "Anyone with valuable insights, experiences, or ideas to share, including external experts, founders, researchers, as well as internal employees with something meaningful worth sharing.",
     },
     {
       question: "CAN I ATTEND REMOTELY?",
       answer:
-        "Yes. Online sessions are hosted via Zoom or Teams and recorded for internal use. In-person sessions include full logistics support for local and travelling speakers.",
+        "Yes! Online sessions are hosted via Zoom/Teams and recorded for internal use.",
     },
     {
-      question: "HOW DO I SUGGEST A TOPIC OR SPEAKER?",
+      question: "HOW DO I SUGGEST A SPEAKER OR TOPIC?",
       answer:
-        "Reach out at gcx@eg.dk or submit the speaker proposal form below. Team members who refer external speakers are eligible for referral recognition.",
+        "Reach out to the organising team (gcx@eg.dk) directly or refer an external expert through the form we share. Keep an eye out, we'll promote it widely so you can apply there. Plus, win exciting gifts on referral!",
     },
-    {
-      question: "HOW ARE SPEAKERS RECOGNISED?",
-      answer:
-        "Digital badges, a speaker certificate, branded gifts, LinkedIn shoutouts, and leadership recognition. Internal speakers are also eligible under the Amplify Awards programme.",
-    },
-    {
-      question: "HOW MUCH TIME DOES IT TAKE?",
-      answer:
-        "Typically 11–22 hours across topic scoping, content creation, rehearsal, and delivery. The programme team handles all logistics, promotion, and post-event follow-up.",
-    },
+
   ] satisfies Faqs[],
 } as const;
