@@ -5,7 +5,6 @@ export type Format = {
 };
 
 export const formatsContent = {
-  eyebrow: "Session Formats",
   title: "PICK YOUR FORMAT. WE FILL THE ROOM",
   intro:
     "Six thoughtfully designed formats to suit the speaker, the subject, and the experience you want to create. We can mix and match formats to make the session your own.",

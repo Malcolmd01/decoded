@@ -1,4 +1,3 @@
-import { BrutalismIcon } from "@/components";
 import { ReasonCard } from "./ReasonCard";
 import { reasonsContent } from "./reasons.data";
 
