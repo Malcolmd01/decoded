@@ -30,7 +30,7 @@ src/
 │   ├── faq/
 │   └── footer/
 ├── hooks/                      # useReducedMotion.ts
-├── lib/                        # cn.ts · motion.ts
+├── lib/                        # cn.ts
 └── types/                      # Shared TypeScript types
 ```
 
@@ -144,25 +144,15 @@ Hero → About → Ticker → Formats → Ticker → Reasons → FAQs → Footer
 
 ---
 
-## Motion — `lib/motion.ts`
+## Motion
 
-All animation via Framer Motion. No CSS keyframes for transitions.
-
-```ts
-// Available exports from lib/motion.ts
-fadeUp            // opacity 0→1, y 40→0, whileInView
-fadeIn            // opacity only
-stagger(n)        // container variant with staggerChildren
-marqueeAnimation  // (exported, currently unused — Ticker has its own inline motion)
-accordionVariants // open/close height + opacity
-viewport          // { once: true, margin: "-80px" }
-```
+All animation via Framer Motion. No CSS keyframes for transitions. Variants and transitions are defined inline per component.
 
 Reduced motion: `useReducedMotion()` from `hooks/useReducedMotion.ts` — pass `{}` variants when true.
 
-**Cinematic intro splash (`features/intro/CinematicSplash.tsx`):** `"use client"`. 5-phase timed animation that runs once on first load. SVG assets in `public/`: `red-logo-1.svg` + `red-logo-2.svg` (two halves), `red-logo.svg` (assembled icon), `decoded-3.svg` ("de"), `decoded-4.svg` ("oded"). Phase sequence: **ENTRY** (t=0) pieces 1+2 fly in diagonally → **ASSEMBLE** (t=600ms) swap for red logo → **REVEAL** (t=800ms) "de"/"oded" slide out from behind the icon → **LOCK** (t=2000ms) composition translates+scales to match the `[data-hero-logo]` element's exact position → **EXIT** (t=3200ms) overlay fades to black, component unmounts at t=4000ms. `rowRef` (inner flex row) is measured separately from `compositionRef` (padded wrapper) so scale and x/y are accurate. Scale formula: `(heroWidth / rowWidth) × INTRO_SCALE` — compensates for the parent transform already applied at measure time. Piece sizing: text pieces `h-[clamp(40px,11vw,140px)] w-auto`; icon box `h-[clamp(38px,10.5vw,134px)]` (95.5% of text height) — this ratio matches the hero logo SVG's internal proportions (icon = 13.5% of total width) so the post-lock icon size lands within 1 px of the hero. Icon box has `ml-[5px]` for horizontal fine-tuning. `window.scrollTo(0, 0)` is called at mount to prevent browser scroll-restore from starting mid-page. Reduced motion: instant-skip via `useReducedMotion()` — splash never shows, `onComplete` fires immediately. `onComplete` is stabilised with a ref so the timer effect never restarts on re-render.
+**Page loader (`features/intro/Loader.tsx`):** `"use client"`. Full-screen black overlay (`z-[9999]`, `bg-black`). On mount: `history.scrollRestoration = "manual"` + `window.scrollTo(0, 0)` prevent browser scroll-restore. Centered content: `red-logo.svg` (95×95px mobile, 172×175px desktop) above a `0→100%` counter in Clash Display bold (`clamp(36px,5vw,64px)`). Counter animates via Framer Motion `animate()` — 0.5s delay, 3s duration, ease `[0.16, 1, 0.3, 1]`. After 300ms hold at 100%, `body.overflow` is restored and `setVisible(false)` triggers exit. Exit: overlay slides up (`y: "-100%"`) over 1.25s with ease `[0.76, 0, 0.24, 1]`, then `AnimatePresence` detaches from DOM. Reduced motion: skips instantly, `onComplete` fires immediately. Previous cinematic splash archived at `features/intro/CinematicSplash.old.tsx`.
 
-**Hero wave background (`HeroWave.tsx`):** Two `motion.div` layers (CSS `filter: blur()`, GPU composited) each contain a static SVG path spanning 2880 units (2× the 1440 viewBox width). Animating `translateX 0% → -50%` with `ease: linear` scrolls exactly one repeat width for a seamless loop — same technique as the Ticker. A secondary `y` bob at a different period creates organic drift between layers. Layer 1: ambient glow (`blur(90px)`, opacity 0.25, x=20s, y=15s). Layer 2: definition glow (`blur(35px)`, opacity 0.65, x=15s, y=22s). CSS blur replaces the former SVG `feGaussianBlur` for GPU compositing on Safari. Wave shape tuning: edit `AMBIENT_PATH` / `MID_PATH` constants — base y values set wave height, bezier control points set amplitude. The outer wrapper fades in at `opacity: 0 → 1` over 2s after a 3.2s delay — synced to the splash EXIT phase.
+**Hero wave background (`HeroWave.tsx`):** Two `motion.div` layers (CSS `filter: blur()`, GPU composited) each contain a static SVG path spanning 2880 units (2× the 1440 viewBox width). Animating `translateX 0% → -50%` with `ease: linear` scrolls exactly one repeat width for a seamless loop — same technique as the Ticker. A secondary `y` bob at a different period creates organic drift between layers. Layer 1: ambient glow (`blur(90px)`, opacity 0.25, x=20s, y=15s). Layer 2: definition glow (`blur(35px)`, opacity 0.65, x=15s, y=22s). CSS blur replaces the former SVG `feGaussianBlur` for GPU compositing on Safari. Wave shape tuning: edit `AMBIENT_PATH` / `MID_PATH` constants — base y values set wave height, bezier control points set amplitude. The outer wrapper fades in at `opacity: 0 → 1` over 2s after a 1s delay.
 
 **About blinds reveal (`About.tsx`):** `"use client"`. Words rendered as `<span data-word>` on SSR (fully readable). After mount, `useEffect` calls `measureLines()` which groups words by `offsetTop` (4px tolerance) into visual lines. Each line renders as `relative block overflow-hidden` with a static text span underneath and an `absolute inset-0 bg-white` `motion.span` on top. The white panel starts at `x: 0%` (covering text) and slides to `±105%` on scroll-in. Uses `variants` with `hidden: { transition: { duration: 0 } }` for instant off-screen reset so the animation replays every time the section enters the viewport (`once: false`).
 

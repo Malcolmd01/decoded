@@ -5,12 +5,12 @@ import { Formats } from "@/features/formats";
 import { Reasons } from "@/features/reasons";
 import { Faq } from "@/features/faq";
 import { Footer } from "@/features/footer";
-import { CinematicSplash } from "@/features/intro";
+import { Loader } from "@/features/intro";
 
 export default function Home() {
   return (
     <>
-      <CinematicSplash />
+      <Loader />
       <main className="flex flex-1 flex-col pb-[500px]">
       <Hero />
       <div className="relative">

@@ -65,29 +65,18 @@ export function About() {
               {/* White blind panel — covers the line at rest, then exits on scroll */}
               <motion.span
                 aria-hidden
-                // --- Blind colour ---
-                // bg-white works against the black bg. Change to bg-black if the
-                // panel should appear to "dissolve into" the section background.
-                className="absolute inset-0 bg-white"
+                className="absolute inset-x-0 -inset-y-px bg-white"
                 initial="hidden"
                 animate={inView ? "visible" : "hidden"}
-                // Two variants: "visible" animates slowly in; "hidden" snaps back
-                // instantly (duration 0) so the reset is invisible off-screen.
+                // "hidden" snaps back instantly (duration 0) so the reset is invisible off-screen
                 variants={{
                   hidden: { x: "0%", transition: { duration: 0 } },
                   visible: {
                     // 105% (not 100%) prevents a 1px edge artefact after easing settles
                     x: i % 2 === 0 ? "105%" : "-105%",
                     transition: {
-                      // --- Duration ---
-                      // Seconds per blind. 0.6 = snappy · 2.0 = current · 2.8 = cinematic.
                       duration: 1.2,
-                      // --- Easing ---
-                      // [0.22, 1, 0.36, 1] = easeOutQuint: bursts out, decelerates smoothly.
-                      // "easeInOut" gives a more mechanical, even-speed blinds feel.
                       ease: [0.22, 1, 0.36, 1],
-                      // --- Stagger ---
-                      // Gap before each successive line starts. 0.08 = fast cascade · 0.2 = deliberate.
                       delay: i * 0.1,
                     },
                   },

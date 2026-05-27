@@ -26,7 +26,7 @@ export function HeroWave() {
       className="pointer-events-none absolute inset-0 overflow-hidden"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ delay: 3.2, duration: 2, ease: "easeIn" }}
+      transition={{ delay: 1, duration: 2, ease: "easeIn" }}
     >
       {/* Ambient layer — wide soft glow */}
       <motion.div
