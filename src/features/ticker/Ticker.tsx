@@ -42,6 +42,7 @@ export function Ticker() {
         animate={{ x: ["0%", "-33.33%"] }}
         transition={{ repeat: Infinity, ease: "linear", duration: 30 }}
       >
+        <TickerContent />        
         <TickerContent />
         <TickerContent />
         <TickerContent />
