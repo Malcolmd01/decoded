@@ -15,11 +15,11 @@ export function Loader({ onComplete }: LoaderProps) {
   const onCompleteRef = useRef(onComplete);
   useEffect(() => { onCompleteRef.current = onComplete; });
 
-  useEffect(() => {
-    if (prefersReduced) return;
-    history.scrollRestoration = "manual";
-    window.scrollTo(0, 0);
-  }, [prefersReduced]);
+  // useEffect(() => {
+  //   if (prefersReduced) return;
+  //   history.scrollRestoration = "manual";
+  //   window.scrollTo(0, 0);
+  // }, [prefersReduced]);
 
   useEffect(() => {
     if (prefersReduced) { onCompleteRef.current?.(); return; }
@@ -27,7 +27,7 @@ export function Loader({ onComplete }: LoaderProps) {
     document.body.style.overflow = "hidden";
 
     const controls = animate(0, 100, {
-      delay: 0.5,
+      delay: 0.2,
       duration: 3,
       ease: [0.16, 1, 0.3, 1],
       onUpdate: (v) => setCount(Math.round(v)),

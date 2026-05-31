@@ -25,7 +25,7 @@ export function Hero() {
           <h1 className="w-[1000px] max-w-full font-body text-[16px] font-semibold leading-snug tracking-normal text-white lg:text-[20px]">
             {heroContent.headline}
           </h1>
-          <a href="https://forms.cloud.microsoft/e/YM7Wky1aAG" target="_blank" rel="noopener noreferrer">
+          <a href="" target="_blank" rel="noopener noreferrer">
             <Button variant="light" aria-label={heroContent.cta}>
               {heroContent.cta}
             </Button>
