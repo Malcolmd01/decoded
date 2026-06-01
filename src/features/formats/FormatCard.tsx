@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { useAnimate, useInView } from "framer-motion";
+import { useAnimate, useInView, motion } from "framer-motion";
 import { BrutalismIcon } from "@/components";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import type { Format } from "./formats.data";
@@ -18,16 +18,16 @@ import type { Format } from "./formats.data";
 // JITTER:          max extra delay on red  → linger above the line
 // BLEED:           max early-start on white → bleed red below the line
 
-const GRID        = 20;
+const GRID        = 15;
 const CELLS       = Array.from({ length: GRID * GRID }, (_, i) => i);
 const PIXEL_COLOR = "rgb(232, 26, 45)";
 
-const REVEAL_DELAY    = 0.2;
+const REVEAL_DELAY    = 1;
 const REVEAL_DURATION = 0.9;
 const WHITE_DUR       = 0.1;
 const RED_DUR         = 0.1;
-const JITTER          = 0.1;   // red lingers this many seconds above the line
-const BLEED           = 0.18;  // white clears up to this many seconds early → red bleeds below
+const JITTER          = 0.1;   
+const BLEED           = 0.18;  
 
 const GRID_STYLE = {
   display: "grid",
@@ -35,33 +35,55 @@ const GRID_STYLE = {
   gridTemplateRows:    `repeat(${GRID}, 1fr)`,
 } as const;
 
-type Props = { format: Format; priority?: boolean };
+type Props = { 
+  format: Format; 
+  priority?: boolean;
+  index: number;
+};
 
-export function FormatCard({ format, priority = false }: Props) {
+export function FormatCard({ format, priority = false, index }: Props) {
   const articleRef = useRef<HTMLElement>(null);
   const [scope, animate] = useAnimate();
   const reduced = useReducedMotion();
-  const inView  = useInView(articleRef, { once: true, margin: "-10%" });
+// 1. Lazy-trigger visibility checking to prevent off-screen computation
+  const inView  = useInView(articleRef, { once: true, margin: "0px 0px 200px 0px" });  
+  // Track when the slide-in translation has finished
+  const [isSlideComplete, setIsSlideComplete] = useState(false);
 
   useEffect(() => {
-    if (!inView || reduced) return;
+    if (!inView) return;
+
+    // 1. Text Scoped Animations
+    if (reduced) {
+      animate("[data-animate-text]", { opacity: 1, y: 0 }, { duration: 0 });
+    } else {
+      animate(
+        "[data-animate-text]",
+        { opacity: [0, 1], y: [-24, 0] },
+        { 
+          duration: 0.9, 
+          delay: (idx) => idx * 0.4, 
+          ease: [0.215, 0.610, 0.355, 1.000] 
+        }
+      );
+    }
+
+    // 2. Pixel Reveal Grid Logic
+    if (reduced) return;
 
     CELLS.forEach((idx) => {
       const row      = Math.floor(idx / GRID);
       const progress = row / (GRID - 1);
       const base     = REVEAL_DELAY + progress * REVEAL_DURATION;
 
-      // White: subtract a random bleed offset — some cells clear early,
-      // briefly exposing red in the rows just below the scan line
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+      // White: subtract a random bleed offset — clears early, briefly exposing red below the scan line
       animate(
         scope.current.querySelector(`[data-white][data-idx="${idx}"]`),
         { opacity: 0 },
         { duration: WHITE_DUR, delay: base - Math.random() * BLEED, ease: "easeOut" }
       );
 
-      // Red: add a random jitter delay — fragments linger above the line
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+      // Red: add a random jitter delay — fragments linger above the scan line
       animate(
         scope.current.querySelector(`[data-red][data-idx="${idx}"]`),
         { opacity: 0 },
@@ -70,67 +92,83 @@ export function FormatCard({ format, priority = false }: Props) {
     });
   }, [inView, reduced, animate, scope]);
 
+  const initialX = reduced ? 0 : index % 2 === 0 ? -180 : 180;
+
   return (
-    <article
+    //remove this animation for mobile screens 
+    <motion.article
       ref={articleRef}
+      // initial={{ opacity: 1, x: initialX }}
+      // whileInView={{ opacity: 1, x: 0 }}
+      // viewport={{ once: true}}
+      // transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      // onAnimationComplete={() => setIsSlideComplete(true)}
       className="grid w-full grid-cols-1 gap-10 rounded-2xl bg-black p-5 text-white md:grid-cols-2 md:gap-16 md:p-[30px]"
     >
-      <div className="order-last flex flex-col justify-between gap-8 md:order-first md:h-[32px]">
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center gap-2 text-white">
-            <BrutalismIcon className="size-[20px]" />
-            <span className="font-body text-base font-bold">{format.name}</span>
-          </div>
-          <h3 className="font-headline text-3xl font-semibold leading-[1.05] tracking-tight md:text-4xl">
-            {format.headline}
-          </h3>
-        </div>
-        <p className="font-body text-[16px] font-normal leading-relaxed text-white md:text-lg">
-          {format.description}
-        </p>
-      </div>
-
-      <div className="relative aspect-square w-full overflow-hidden rounded-lg">
-        <Image
-          src="/placeholder.jpg"
-          fill
-          alt=""
-          aria-hidden
-          sizes="(min-width: 768px) 50vw, 100vw"
-          className="object-cover"
-          priority={priority}
-        />
-
-        {!reduced && (
-          <div ref={scope} aria-hidden className="pointer-events-none absolute inset-0">
-
-            {/* Red layer — underneath white, lingers above + bleeds below the line */}
-            <div className="absolute inset-0" style={GRID_STYLE}>
-              {CELLS.map((i) => (
-                <div
-                  key={i}
-                  data-red
-                  data-idx={i}
-                  style={{ backgroundColor: PIXEL_COLOR }}
-                />
-              ))}
+      <div ref={scope} className="contents">
+        <div className="order-last flex flex-col justify-between gap-8 md:order-first md:h-[32px]">
+          <div className="flex flex-col gap-3">
+            <div data-animate-text className="flex items-center gap-2 text-white opacity-0">
+              <BrutalismIcon className="size-[20px]" />
+              <span className="font-body text-base font-bold">{format.name}</span>
             </div>
+            <h3 data-animate-text className="font-headline text-3xl font-semibold leading-[1.05] tracking-tight md:text-4xl opacity-0">
+              {format.headline}
+            </h3>
+          </div>
+          <p data-animate-text className="font-body text-[16px] font-normal leading-relaxed text-white md:text-lg opacity-0">
+            {format.description}
+          </p>
+        </div>
+
+        <div className="relative aspect-square w-full overflow-hidden rounded-lg">
+          <Image
+            src={`/${format.name.toLowerCase().replace(/\s/g, "-")}.png`}
+            fill
+            alt=""
+            aria-hidden
+            sizes="(min-width: 768px) 50vw, 100vw"
+            className="object-cover"
+            priority={priority}
+          />
+
+          {!reduced && (
+            <div aria-hidden className="pointer-events-none absolute inset-0">
+            {/* Red layer — underneath white, lingers above + bleeds below the line */}
+              <div className="absolute inset-0" style={GRID_STYLE}>
+                {CELLS.map((i) => (
+                  <div
+                    key={i}
+                    data-red
+                    data-idx={i}
+                    style={{ backgroundColor: PIXEL_COLOR }}
+                  />
+                ))}
+              </div>
 
             {/* White layer — on top, per-cell with early bleed */}
-            <div className="absolute inset-0" style={GRID_STYLE}>
-              {CELLS.map((i) => (
-                <div
-                  key={i}
-                  data-white
-                  data-idx={i}
-                  style={{ backgroundColor: "rgb(255, 255, 255)" }}
-                />
-              ))}
-            </div>
+              <div className="absolute inset-0" style={GRID_STYLE}>
+                {CELLS.map((i) => (
+                  <div
+                    key={i}
+                    data-white
+                    data-idx={i}
+                    style={{ backgroundColor: "rgb(255, 255, 255)" }}
+                  />
+                ))}
+              </div>
 
-          </div>
-        )}
+              {/* Solid white masking block that disappears ONLY after sliding stops */}
+              {/* {!isSlideComplete && (
+                <div 
+                  className="absolute inset-0 bg-white z-10" 
+                  style={{ content: '""' }}
+                />
+              )} */}
+            </div>
+          )}
+        </div>
       </div>
-    </article>
+    </motion.article>
   );
 }

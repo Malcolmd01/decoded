@@ -10,6 +10,7 @@
 - Tailwind CSS v4 — all styling · Framer Motion v12 — all animation
 - `cn()` via `clsx` + `tailwind-merge` in `lib/cn.ts`
 - No MUI, Emotion, or Radix unless explicitly requested
+- Favicon: `metadata.icons: { icon: "/red-logo.svg" }` in `app/layout.tsx` — no `favicon.ico`
 
 ---
 
@@ -20,6 +21,7 @@ src/
 ├── app/                        # Next.js App Router (layout.tsx, page.tsx, globals.css)
 ├── components/                 # Shared primitives: Button, BrutalismIcon
 ├── features/                   # One folder per page section — self-contained
+│   ├── intro/
 │   ├── hero/
 │   ├── about/
 │   ├── ticker/
@@ -28,7 +30,7 @@ src/
 │   ├── faq/
 │   └── footer/
 ├── hooks/                      # useReducedMotion.ts
-├── lib/                        # cn.ts · motion.ts
+├── lib/                        # cn.ts
 └── types/                      # Shared TypeScript types
 ```
 
@@ -142,23 +144,15 @@ Hero → About → Ticker → Formats → Ticker → Reasons → FAQs → Footer
 
 ---
 
-## Motion — `lib/motion.ts`
+## Motion
 
-All animation via Framer Motion. No CSS keyframes for transitions.
-
-```ts
-// Available exports from lib/motion.ts
-fadeUp            // opacity 0→1, y 40→0, whileInView
-fadeIn            // opacity only
-stagger(n)        // container variant with staggerChildren
-marqueeAnimation  // (exported, currently unused — Ticker has its own inline motion)
-accordionVariants // open/close height + opacity
-viewport          // { once: true, margin: "-80px" }
-```
+All animation via Framer Motion. No CSS keyframes for transitions. Variants and transitions are defined inline per component.
 
 Reduced motion: `useReducedMotion()` from `hooks/useReducedMotion.ts` — pass `{}` variants when true.
 
-**Hero wave background (`HeroWave.tsx`):** Two `motion.path` layers morph through 6 randomly generated SVG path keyframes (`repeatType: "mirror"`). Paths are generated client-side only in `useEffect` (never on server) to avoid hydration mismatch — initial state uses `STATIC_PATH` on both server and client. Both arrays are batched into a single `wavePaths` state object. Layer 1: ambient glow (`stdDeviation 90`, opacity 0.25, 15s). Layer 2: definition glow (`stdDeviation 35`, opacity 0.65, 22s) — different durations let layers drift for organic motion. `generateWavePath` uses `base 700` / `spread 250` for the current amplitude. Static preview at `public/hero-wave.svg`. `feGaussianBlur` filter bounds must use `x/y/width/height` percentage overrides or the blur clips at the SVG edge.
+**Page loader (`features/intro/Loader.tsx`):** `"use client"`. Full-screen black overlay (`z-[9999]`, `bg-black`). On mount: `history.scrollRestoration = "manual"` + `window.scrollTo(0, 0)` prevent browser scroll-restore. Centered content: `red-logo.svg` (95×95px mobile, 172×175px desktop) above a `0→100%` counter in Clash Display bold (`clamp(36px,5vw,64px)`). Counter animates via Framer Motion `animate()` — 0.5s delay, 3s duration, ease `[0.16, 1, 0.3, 1]`. After 300ms hold at 100%, `body.overflow` is restored and `setVisible(false)` triggers exit. Exit: overlay slides up (`y: "-100%"`) over 1.25s with ease `[0.76, 0, 0.24, 1]`, then `AnimatePresence` detaches from DOM. Reduced motion: skips instantly, `onComplete` fires immediately. Previous cinematic splash archived at `features/intro/CinematicSplash.old.tsx`.
+
+**Hero wave background (`HeroWave.tsx`):** Two `motion.div` layers (CSS `filter: blur()`, GPU composited) each contain a static SVG path spanning 2880 units (2× the 1440 viewBox width). Animating `translateX 0% → -50%` with `ease: linear` scrolls exactly one repeat width for a seamless loop — same technique as the Ticker. A secondary `y` bob at a different period creates organic drift between layers. Layer 1: ambient glow (`blur(90px)`, opacity 0.25, x=20s, y=15s). Layer 2: definition glow (`blur(35px)`, opacity 0.65, x=15s, y=22s). CSS blur replaces the former SVG `feGaussianBlur` for GPU compositing on Safari. Wave shape tuning: edit `AMBIENT_PATH` / `MID_PATH` constants — base y values set wave height, bezier control points set amplitude. The outer wrapper fades in at `opacity: 0 → 1` over 2s after a 1s delay.
 
 **About blinds reveal (`About.tsx`):** `"use client"`. Words rendered as `<span data-word>` on SSR (fully readable). After mount, `useEffect` calls `measureLines()` which groups words by `offsetTop` (4px tolerance) into visual lines. Each line renders as `relative block overflow-hidden` with a static text span underneath and an `absolute inset-0 bg-white` `motion.span` on top. The white panel starts at `x: 0%` (covering text) and slides to `±105%` on scroll-in. Uses `variants` with `hidden: { transition: { duration: 0 } }` for instant off-screen reset so the animation replays every time the section enters the viewport (`once: false`).
 
@@ -166,7 +160,7 @@ Reduced motion: `useReducedMotion()` from `hooks/useReducedMotion.ts` — pass `
 
 **Roll-up hover (e.g. footer email):** Use Tailwind CSS transitions, not Framer Motion. Pattern: `overflow-hidden` container with two stacked `<span>`s; first: `group-hover:-translate-y-full`; second: `translate-y-full group-hover:translate-y-0`. Add `group` to the parent link.
 
-**FormatCard pixel mask reveal (`FormatCard.tsx`):** `"use client"`. Each card's image is covered by a 20×20 grid of cells (two stacked layers: red below, white on top). On `useInView` (`once: true`, `margin: "-10%"`), `useAnimate` fades each cell's `opacity` to 0 row-by-row from top to bottom over `REVEAL_DURATION` (0.9s) after a `REVEAL_DELAY` (0.2s). Two jitter offsets create the "scan line" look: white cells subtract a random `BLEED` (≤0.18s) so they clear early and briefly expose red below the line; red cells add a random `JITTER` (≤0.1s) so fragments linger above it. Reduced motion skips the overlay entirely. Tunables (`GRID`, `REVEAL_DELAY`, `REVEAL_DURATION`, `WHITE_DUR`, `RED_DUR`, `JITTER`, `BLEED`) are module-level constants at the top of the file. `FormatCard` accepts a `priority?: boolean` prop — `Formats.tsx` passes `priority={i === 0}` so only the first card preloads its image; the rest use Next.js default lazy loading and hit the browser cache (same `/placeholder.jpg` URL).
+**FormatCard pixel mask reveal (`FormatCard.tsx`):** `"use client"`. Each card's image is covered by a 15×15 grid of cells (two stacked layers: red below, white on top). On `useInView` (`once: true`, `margin: "-10%"`), `useAnimate` fades each cell's `opacity` to 0 row-by-row from top to bottom over `REVEAL_DURATION` (0.9s) after a `REVEAL_DELAY` (0.2s). Two jitter offsets create the "scan line" look: white cells subtract a random `BLEED` (≤0.18s) so they clear early and briefly expose red below the line; red cells add a random `JITTER` (≤0.1s) so fragments linger above it. Reduced motion skips the overlay entirely. Tunables (`GRID`, `REVEAL_DELAY`, `REVEAL_DURATION`, `WHITE_DUR`, `RED_DUR`, `JITTER`, `BLEED`) are module-level constants at the top of the file. `FormatCard` accepts a `priority?: boolean` prop — `Formats.tsx` passes `priority={i === 0}` so only the first card preloads its image; the rest lazy-load. Image paths are derived from format name: `/${name.toLowerCase().replace(/\s/g, "-")}.png` — actual PNGs live in `public/` (`tech-talks.png`, `live-demo.png`, `debate.png`, `panel.png`, `fireside-chat.png`, `workshop.png`).
 
 ---
 

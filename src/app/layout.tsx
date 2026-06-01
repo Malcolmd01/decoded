@@ -34,6 +34,7 @@ const body = localFont({
 export const metadata: Metadata = {
   title: "Decoded",
   description: "Decoded — events and conversations.",
+  icons: { icon: "/red-logo.svg" },
 };
 
 export default function RootLayout({

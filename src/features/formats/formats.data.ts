@@ -5,46 +5,45 @@ export type Format = {
 };
 
 export const formatsContent = {
-  eyebrow: "Session Formats",
   title: "PICK YOUR FORMAT. WE FILL THE ROOM",
   intro:
-    "Six formats designed to match the content, the speaker, and the crowd. Formats can be combined.",
+    "Six thoughtfully designed formats to suit the speaker, the subject, and the experience you want to create. We can mix and match formats to make the session your own.",
   formats: [
     {
       name: "Tech Talks",
       headline: "DEEP-DIVE TALKS",
       description:
-        "45 minutes of structured insight, 15 minutes of honest Q&A. For when someone has done the work and the room needs to hear it.",
+        "A focused presentation that explores a topic in depth, led by a speaker with real-world experience. Ideal for sharing insights, technical learnings, industry trends, and followed by an interactive Q&A session.",
     },
     {
       name: "Live Demo",
       headline: "BUILD-ALONG SESSION",
       description:
-        "Speaker codes or configures live. The audience follows. Ideal for tools, pipelines, APIs, and open source. Seeing is understanding.",
+        "A hands-on walkthrough that brings concepts to life through practical demonstration. Perfect for showcasing tools, workflows, products, prototypes, or technical solutions in a more engaging and visual way.",
     },
     {
       name: "Debate",
       headline: "TWO SIDES, ONE STAGE",
       description:
-        "SQL vs NoSQL. Build vs Buy. Microservices vs Monolith. Structured, timed, opinionated. The audience votes at the end.",
+        "A structured discussion where two sides explore different perspectives on a topic or idea. Designed to spark thoughtful conversations, challenge assumptions, and encourage audience participation.",
     },
     {
       name: "Panel",
       headline: "MULTI-VOICE DISCUSSION",
       description:
-        "3–4 speakers, a sharp moderator, real audience questions. Best for big topics that don't have clean answers.",
+        "A moderated conversation featuring multiple speakers sharing diverse experiences and viewpoints. Best suited for broader themes, emerging trends, or topics that benefit from varied industry perspectives.",
     },
     {
       name: "Fireside Chat",
       headline: "INFORMAL INTERVIEW",
       description:
-        "One host, one expert. Career paths, hard lessons, honest opinions. Low prep, high authenticity. Exceptional for senior leaders.",
+        "An informal and conversational session between a host and a guest speaker. More personal and story-driven, this format focuses on experiences, lessons, and honest insights rather than formal presentations.",
     },
     {
       name: "Workshop",
       headline: "HANDS-ON SESSION",
       description:
-        "30 min talk, 45 min group problem-solving. Highest retention of all formats. Speaker facilitates — worth the extra planning.",
+        "An interactive, hands-on session where participants actively learn, build, or practice something new. Attendees leave with practical knowledge, useful takeaways, or tangible outcomes they can apply immediately.",
     },
   ] satisfies Format[],
 } as const;
