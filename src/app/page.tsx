@@ -6,11 +6,12 @@ import { Reasons } from "@/features/reasons";
 import { Faq } from "@/features/faq";
 import { Footer } from "@/features/footer";
 import { Loader } from "@/features/intro";
-
+import { Nav } from "@/features/nav/Nav";
 export default function Home() {
   return (
     <>
       <Loader />
+      <Nav />
       <main className="flex flex-1 flex-col pb-[500px]">
       <Hero />
       <div className="relative">

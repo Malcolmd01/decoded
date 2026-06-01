@@ -1,7 +1,30 @@
 export const footerContent = {
-  copyright: "© 2026 EGDK Private Limited. All rights reserved.",
-  contactLabel: "Contact",
-  email: "gcx@eg.dk",
+  programme: {
+    label: "( Programme )",
+    description: "A knowledge-sharing programme for people who build things.",
+  },
+  navigation: {
+    label: "( Navigation )",
+    links: [
+      { label: "Home",     href: "#hero" },
+      { label: "About",    href: "#about" },
+      { label: "Sessions", href: "#formats" },
+      { label: "Reasons",  href: "#reasons" },
+    ],
+  },
+  contact: {
+    label: "( Contact )",
+    email: "gcx@eg.dk",
+  },
+  connect: {
+    label: "( Connect )",
+    links: [
+      { label: "Instagram", href: "https://instagram.com" },
+      { label: "LinkedIn",  href: "https://linkedin.com" },
+    ],
+  },
+  copyright: "© 2026 Decoded. All rights reserved.",
+  poweredBy: "Powered by:",
   logo: {
     src: "/decoded_logo_footer.svg",
     alt: "Decoded",

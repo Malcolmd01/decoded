@@ -11,15 +11,10 @@ interface LoaderProps {
 export function Loader({ onComplete }: LoaderProps) {
   const prefersReduced = useReducedMotion();
   const [count, setCount]     = useState(0);
+  const [done, setDone]       = useState(false);
   const [visible, setVisible] = useState(!prefersReduced);
   const onCompleteRef = useRef(onComplete);
   useEffect(() => { onCompleteRef.current = onComplete; });
-
-  useEffect(() => {
-    if (prefersReduced) return;
-    history.scrollRestoration = "manual";
-    window.scrollTo(0, 0);
-  }, [prefersReduced]);
 
   useEffect(() => {
     if (prefersReduced) { onCompleteRef.current?.(); return; }
@@ -27,16 +22,17 @@ export function Loader({ onComplete }: LoaderProps) {
     document.body.style.overflow = "hidden";
 
     const controls = animate(0, 100, {
-      delay: 0.5,
-      duration: 3,
-      ease: [0.16, 1, 0.3, 1],
+      delay: 0.1,
+      duration: 1.5,
+      ease: "linear",
       onUpdate: (v) => setCount(Math.round(v)),
       onComplete: () => {
+        setDone(true);
         setTimeout(() => {
           document.body.style.overflow = "";
           setVisible(false);
           onCompleteRef.current?.();
-        }, 300);
+        }, 150);
       },
     });
 
@@ -47,24 +43,29 @@ export function Loader({ onComplete }: LoaderProps) {
     <AnimatePresence>
       {visible && (
         <motion.div
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black"
+          className="fixed inset-0 z-[9999] bg-black"
           exit={{ y: "-100%" }}
-          transition={{ duration: 1.25, ease: [0.76, 0, 0.24, 1] }}
+          transition={{ duration: 1.25, ease: [0.76, 0, 0.85, 1] }}
         >
-          <div className="flex flex-col items-center gap-8">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/red-logo.svg"
-              alt=""
-              aria-hidden="true"
-              width={172}
-              height={175}
-              className="w-[95px] h-[95px] md:w-[172px] md:h-[175px] object-contain"
-            />
-            <span className="font-headline font-bold text-white text-[clamp(36px,5vw,64px)] leading-none tabular-nums">
-              {count}%
-            </span>
-          </div>
+          {/* Logo — centered, 40% opacity, black mask lifts upward as count increases */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/red-logo.svg"
+            alt=""
+            aria-hidden="true"
+            width={172}
+            height={175}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[95px] h-[95px] md:w-[172px] md:h-[175px] object-contain"
+            style={{ clipPath: `inset(${100 - count}% 0 0 0)` }}
+          />
+
+          {/* Counter — bottom center, fades out on complete */}
+          <span
+            className="absolute bottom-8 left-1/2 -translate-x-1/2 font-headline font-bold text-white text-[clamp(36px,5vw,96px)] leading-none tabular-nums transition-opacity duration-200"
+            style={{ opacity: done ? 0 : 1 }}
+          >
+            {count}%
+          </span>
         </motion.div>
       )}
     </AnimatePresence>
