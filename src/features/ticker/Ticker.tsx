@@ -12,7 +12,7 @@ function TickerContent() {
           <span className="font-headline text-[48px] font-semibold tracking-tight text-black uppercase">
             {word}
           </span>
-          <Image src="/red-logo.svg" alt="" aria-hidden width={72} height={72} className="block shrink-0 size-[72px] md:size-[88px]" />
+          <Image src="/red-logo.svg" alt="" aria-hidden width={72} height={72} className="block shrink-0 size-[72px] md:size-[64px]" />
         </Fragment>
       ))}
     </div>
@@ -27,8 +27,8 @@ export function Ticker() {
     >
       <motion.div
         className="flex w-max"
-        // Animate -50% to cycle 2 out of the 4 track elements smoothly 
-        animate={{ x: ["0%", "-50%"] }}
+        // 3 copies — move exactly one copy width (1/3 of total track) for a seamless loop
+        animate={{ x: ["0%", "-33.33%"] }}
         transition={{ 
           repeat: Infinity, 
           ease: "linear", 
