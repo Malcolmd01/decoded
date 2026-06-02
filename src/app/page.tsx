@@ -12,7 +12,7 @@ export default function Home() {
     <>
       <Loader />
       <Nav />
-      <main className="flex flex-1 flex-col pb-[500px]">
+      <main className="flex flex-1 flex-col pb-[680px] md:pb-[600px]">
       <Hero />
       <div className="relative">
         <About />

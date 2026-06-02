@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components";
@@ -23,19 +23,41 @@ function scrollTo(href: string) {
 
 export function Nav() {
   const [scrolled, setScrolled] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const [pastHero, setPastHero] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const lastY = useRef(0);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 40);
+      setPastHero(y > window.innerHeight * 0.85);
+
+      if (!menuOpen) {
+        if (y > lastY.current && y > 80) {
+          setHidden(true);
+        } else {
+          setHidden(false);
+        }
+      }
+      lastY.current = y;
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [menuOpen]);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 flex flex-col items-center px-5 pt-4 md:px-8">
+    <motion.header
+      className="fixed inset-x-0 top-0 z-50 flex flex-col items-center px-5 pt-4 md:px-8"
+      animate={{ y: hidden ? "-100%" : "0%" }}
+      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+    >
       {/* Nav pill */}
       <nav
-        className={`flex w-full max-w-[1072px] items-center justify-between rounded-3xl px-4 py-3 transition-all duration-300 ${
+        className={`flex w-full items-center justify-between rounded-3xl px-4 py-3 transition-[max-width,background-color,backdrop-filter] duration-300 ease-in-out ${
+          pastHero ? "max-w-[834px]" : "max-w-[1072px]"
+        } ${
           scrolled || menuOpen ? "bg-black/70 backdrop-blur-md" : ""
         }`}
         aria-label="Main navigation"
@@ -69,11 +91,7 @@ export function Nav() {
         </ul>
 
         {/* Desktop CTA */}
-        <a
-          href="#apply"
-          className="hidden md:block"
-          onClick={(e) => { e.preventDefault(); scrollTo("#apply"); }}
-        >
+        <a href="/speaker-form" className="hidden md:block">
           <Button variant="light">Apply to speak</Button>
         </a>
 
@@ -129,8 +147,8 @@ export function Nav() {
               className="px-4 pb-4"
             >
               <a
-                href="#apply"
-                onClick={(e) => { e.preventDefault(); setMenuOpen(false); scrollTo("#apply"); }}
+                href="/speaker-form"
+                onClick={() => setMenuOpen(false)}
                 className="block w-full rounded-2xl bg-white py-4 text-center font-body text-base font-bold text-black transition-colors duration-150 hover:bg-off-white"
               >
                 Apply to speak
@@ -139,6 +157,6 @@ export function Nav() {
           </motion.div>
         )}
       </AnimatePresence>
-    </header>
+    </motion.header>
   );
 }

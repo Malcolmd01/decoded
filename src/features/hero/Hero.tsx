@@ -52,7 +52,10 @@ export function Hero() {
             {heroContent.headline}
           </motion.h1>
           <motion.div {...fadeIn(BUTTON_DELAY)}>
-            <a href="https://forms.cloud.microsoft/e/YM7Wky1aAG" target="_blank" rel="noopener noreferrer">
+            <a 
+            // href="https://forms.cloud.microsoft/e/YM7Wky1aAG"
+            href='/speaker-form'
+             target="_blank" rel="noopener noreferrer">
               <Button variant="light" aria-label={heroContent.cta}>
                 {heroContent.cta}
               </Button>

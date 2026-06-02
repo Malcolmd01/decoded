@@ -29,6 +29,6 @@ export const footerContent = {
     src: "/decoded_logo_footer.svg",
     alt: "Decoded",
     width: 1239,
-    height: 175,
+    height: 134,
   },
 } as const;
