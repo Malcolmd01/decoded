@@ -68,11 +68,12 @@ export function SpeakerForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [confirmed, setConfirmed] = useState(false);
 
   const form = useForm<SessionSubmissionFormValues>({
     resolver: zodResolver(sessionSubmissionSchema),
     defaultValues: {
-      speakerType: "employee",
+      speakerType: undefined,
       fullName: "",
       businessUnit: "",
       team: "",
@@ -125,8 +126,15 @@ export function SpeakerForm() {
     <AnimatePresence>{submitted && <SuccessModal />}</AnimatePresence>
     <div className="mx-auto max-w-5xl rounded-2xl border border-white/20 bg-black/70 p-8 backdrop-blur-md md:p-10">
       <div className="mb-10">
-        <h1 className="font-headline text-3xl font-semibold tracking-tight text-white">Decoded Session Submission</h1>
-        <p className="mt-2 font-body text-white/60">Submit your session proposal for consideration.</p>
+        <h1 className="font-headline text-3xl font-semibold tracking-tight text-white">Speak at Decoded</h1>
+        <p className="mt-2 font-body text-white/80">Got something worth sharing? We'd love to hear from you.</p>
+        <p className="mt-8 font-body text-sm  text-white/60">Fill in the form below and our team 
+        <span className="text-white mx-1">
+          (gcx@eg.dk)
+        </span>
+        will be in touch.</p>
+        <p className="mt-2 font-body text-sm text-white/60">
+When you submit this form, it will not automatically collect your details like name and email address unless you provide it yourself.</p>
       </div>
 
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-12">
@@ -138,26 +146,26 @@ export function SpeakerForm() {
             name="speakerType"
             render={({ field }) => (
               <div className="flex gap-8">
-                <label className="flex cursor-pointer items-center gap-2">
-                  <input
-                    type="radio"
-                    value="employee"
-                    checked={field.value === "employee"}
-                    onChange={field.onChange}
-                    className="accent-red h-4 w-4"
-                  />
-                  <span className="font-body text-white">Employee</span>
-                </label>
-                <label className="flex cursor-pointer items-center gap-2">
-                  <input
-                    type="radio"
-                    value="external"
-                    checked={field.value === "external"}
-                    onChange={field.onChange}
-                    className="accent-red h-4 w-4"
-                  />
-                  <span className="font-body text-white">External Speaker</span>
-                </label>
+                {(["employee", "external"] as const).map((val) => (
+                  <motion.label
+                    key={val}
+                    animate={{ opacity: confirmed && field.value !== val ? 0.25 : 1 }}
+                    transition={{ duration: 0.3 }}
+                    className={`flex items-center gap-2 transition-colors ${confirmed ? "cursor-default pointer-events-none" : "cursor-pointer"}`}
+                  >
+                    <input
+                      type="radio"
+                      value={val}
+                      checked={field.value === val}
+                      onChange={field.onChange}
+                      disabled={confirmed}
+                      className="accent-red h-4 w-4"
+                    />
+                    <span className="font-body text-white">
+                      {val === "employee" ? "EG Employee" : "External Speaker"}
+                    </span>
+                  </motion.label>
+                ))}
               </div>
             )}
           />
@@ -165,6 +173,61 @@ export function SpeakerForm() {
             <p className="font-body text-sm text-red-400">{form.formState.errors.speakerType.message}</p>
           )}
         </div>
+
+        {/* Hint — shown until a type is selected */}
+        <AnimatePresence>
+          {!speakerType && !confirmed && (
+            <motion.p
+              className="font-body text-sm text-white/40"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              Select your speaker type above to continue.
+            </motion.p>
+          )}
+        </AnimatePresence>
+
+        {/* Next button — appears once a type is selected, disappears on confirm */}
+        <AnimatePresence>
+          {speakerType && !confirmed && (
+            <motion.button
+              type="button"
+              onClick={() => setConfirmed(true)}
+              initial={{ opacity: 0, y: 16, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -12, scale: 0.95 }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              className="flex items-center gap-2 rounded-lg bg-red px-6 py-3 font-body font-semibold text-white"
+            >
+              Continue
+              <motion.svg
+                viewBox="0 0 16 16"
+                fill="none"
+                className="h-4 w-4"
+                initial={{ x: 0 }}
+                animate={{ x: [0, 3, 0] }}
+                transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut", repeatDelay: 0.4 }}
+              >
+                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
+              </motion.svg>
+            </motion.button>
+          )}
+        </AnimatePresence>
+
+        {/* Full form — revealed once confirmed */}
+        <AnimatePresence>
+          {confirmed && (
+            <motion.div
+              className="space-y-12"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            >
 
         <hr className="border-white/20" />
 
@@ -278,6 +341,10 @@ export function SpeakerForm() {
         {submitError && (
           <p className="font-body text-center text-sm text-red-400">{submitError}</p>
         )}
+
+            </motion.div>
+          )}
+        </AnimatePresence>
       </form>
     </div>
     </>

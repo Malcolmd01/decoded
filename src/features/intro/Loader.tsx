@@ -10,11 +10,30 @@ interface LoaderProps {
 
 export function Loader({ onComplete }: LoaderProps) {
   const prefersReduced = useReducedMotion();
+  const [resetKey, setResetKey] = useState(0);
   const [count, setCount]     = useState(0);
   const [done, setDone]       = useState(false);
   const [visible, setVisible] = useState(!prefersReduced);
   const onCompleteRef = useRef(onComplete);
   useEffect(() => { onCompleteRef.current = onComplete; });
+
+  // Reset and replay only when navigating back to this page from a different pathname.
+  // popstate also fires on hash changes (#about, #hero etc.) — those must be ignored.
+  const lastPathname = useRef(typeof window !== "undefined" ? window.location.pathname : "/");
+  useEffect(() => {
+    const handlePop = () => {
+      const incoming = window.location.pathname;
+      const wasOnDifferentPage = lastPathname.current !== incoming;
+      lastPathname.current = incoming;
+      if (!wasOnDifferentPage || prefersReduced) return;
+      setCount(0);
+      setDone(false);
+      setVisible(true);
+      setResetKey((k) => k + 1);
+    };
+    window.addEventListener("popstate", handlePop);
+    return () => window.removeEventListener("popstate", handlePop);
+  }, [prefersReduced]);
 
   useEffect(() => {
     if (prefersReduced) { onCompleteRef.current?.(); return; }
@@ -37,7 +56,7 @@ export function Loader({ onComplete }: LoaderProps) {
     });
 
     return () => { controls.stop(); document.body.style.overflow = ""; };
-  }, [prefersReduced]);
+  }, [prefersReduced, resetKey]);
 
   return (
     <AnimatePresence>

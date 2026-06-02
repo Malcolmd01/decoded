@@ -1,10 +1,23 @@
+"use client";
+
 import Image from "next/image";
 import { footerContent } from "./footer.data";
 
+function scrollTo(href: string) {
+  if (href === "#hero") {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
+  const el = document.getElementById(href.replace("#", ""));
+  if (el) el.scrollIntoView({ behavior: "smooth" });
+}
+
 function RollLink({ label, href, className = "" }: { label: string; href: string; className?: string }) {
+  const isHash = href.startsWith("#");
   return (
     <a
       href={href}
+      onClick={isHash ? (e) => { e.preventDefault(); scrollTo(href); } : undefined}
       className={`group relative block overflow-hidden  font-bold leading-snug ${className}`}
     >
       <span className="block transition-transform duration-300 ease-in-out font-bold group-hover:-translate-y-full">
@@ -27,10 +40,10 @@ function ColLabel({ children }: { children: string }) {
 
 export function Footer() {
   return (
-    <footer className="fixed inset-x-0 bottom-0 z-0 flex h-[680px] md:h-[600px] flex-col justify-between overflow-hidden bg-red px-5 py-6 md:px-[30px] md:py-8">
+    <footer className="fixed inset-x-0 bottom-0 z-0 flex h-[680px] md:h-[650px] flex-col justify-between overflow-hidden bg-red px-5 py-6 md:px-[30px] md:py-8">
 
       {/* Top — programme + columns (gap=64px in Framer between this and bottom) */}
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between lg:pb-16">
 
         {/* Programme — 367px in Framer, gap=8px label→desc */}
         <div className="flex flex-col gap-2 md:max-w-[367px]">
@@ -41,7 +54,7 @@ export function Footer() {
         </div>
 
         {/* Right columns — gap=64px between each in Framer */}
-        <div className="flex flex-col gap-4 md:flex-row md:gap-16">
+        <div className="flex flex-col gap-8 mt-2 md:flex-row md:gap-16">
 
           {/* Navigation — label→links gap=8px, links gap=16px */}
           <div className="flex flex-col gap-2">
@@ -94,7 +107,7 @@ export function Footer() {
           alt={footerContent.logo.alt}
           width={footerContent.logo.width}
           height={footerContent.logo.height}
-          className="w-[90%] h-auto brightness-0 lg:w-full"
+          className="w-full h-fit brightness-0 lg:w-full"
         />
 
         {/* Desktop only (md+): copyright | powered by in one row */}

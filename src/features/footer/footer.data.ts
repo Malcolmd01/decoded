@@ -8,7 +8,7 @@ export const footerContent = {
     links: [
       { label: "Home",     href: "#hero" },
       { label: "About",    href: "#about" },
-      { label: "Sessions", href: "#formats" },
+      { label: "Formats", href: "#formats" },
       { label: "Reasons",  href: "#reasons" },
     ],
   },
