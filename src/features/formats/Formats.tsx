@@ -1,8 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { motion, Variants } from "framer-motion";
 import { FormatCard } from "./FormatCard";
+import { FormatDrawer } from "./FormatDrawer";
 import { formatsContent } from "./formats.data";
+import type { Format } from "./formats.data";
 
 // Parent Container Variant orchestrating child elements smoothly
 const headerContainerVariants: Variants = {
@@ -35,7 +38,11 @@ const introVariants: Variants = {
 };
 
 export function Formats() {
+  const [active, setActive] = useState<Format | null>(null);
+
   return (
+    <>
+    <FormatDrawer format={active} onClose={() => setActive(null)} />
     <section
       id="formats"
       className="relative z-10 bg-red px-5 py-24 text-white md:px-8 md:py-[100px] overflow-x-hidden"
@@ -69,10 +76,11 @@ export function Formats() {
 
         <div className="flex flex-col gap-8"> 
           {formatsContent.formats.map((format, i) => (
-            <FormatCard key={format.name} format={format} index={i} priority={i === 0} />
+            <FormatCard key={format.name} format={format} index={i} priority={i === 0} onOpen={() => setActive(format)} />
           ))}
         </div>
       </div>
     </section>
+    </>
   );
 }
