@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { MobileProvider } from "@/lib/mobile-context";
 
 const headline = localFont({
   src: [
@@ -48,7 +49,7 @@ export default function RootLayout({
       className={`${headline.variable} ${body.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-body bg-black text-black">
-        {children}
+        <MobileProvider>{children}</MobileProvider>
       </body>
     </html>
   );

@@ -17,14 +17,13 @@ function BauhausIcon() {
 
 function TickerContent() {
   return (
-    <div className="flex shrink-0 items-center gap-8 pl-8 md:gap-[30px] md:pl-[30px]">
-      <BauhausIcon />
-      {tickerWords.map((word, i) => (
+    <div className="flex shrink-0 items-center gap-8 pr-8 md:gap-[30px] md:pr-[30px]">
+      {tickerWords.map((word) => (
         <Fragment key={word}>
-          <span className="font-headline font-semibold tracking-tight text-black text-[48px]">
+          <span className="font-headline text-[48px] font-semibold tracking-tight text-black uppercase">
             {word}
           </span>
-          {i < tickerWords.length-1 && <BauhausIcon />}
+          <BauhausIcon />
         </Fragment>
       ))}
     </div>
@@ -39,8 +38,13 @@ export function Ticker() {
     >
       <motion.div
         className="flex w-max"
-        animate={{ x: ["0%", "-33.33%"] }}
-        transition={{ repeat: Infinity, ease: "linear", duration: 30 }}
+        // Animate -50% to cycle 2 out of the 4 track elements smoothly 
+        animate={{ x: ["0%", "-50%"] }}
+        transition={{ 
+          repeat: Infinity, 
+          ease: "linear", 
+          duration: 35 // Bumped up slightly to compensate for moving a longer track distance
+        }}
       >
         <TickerContent />        
         <TickerContent />
