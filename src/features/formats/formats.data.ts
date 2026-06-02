@@ -1,6 +1,5 @@
 export type Format = {
   name: string;
-  headline: string;
   description: string;
 };
 
@@ -11,37 +10,31 @@ export const formatsContent = {
   formats: [
     {
       name: "Tech Talks",
-      headline: "DEEP-DIVE TALKS",
       description:
         "A focused presentation that explores a topic in depth, led by a speaker with real-world experience. Ideal for sharing insights, technical learnings, industry trends, and followed by an interactive Q&A session.",
     },
     {
       name: "Live Demo",
-      headline: "BUILD-ALONG SESSION",
       description:
         "A hands-on walkthrough that brings concepts to life through practical demonstration. Perfect for showcasing tools, workflows, products, prototypes, or technical solutions in a more engaging and visual way.",
     },
     {
       name: "Debate",
-      headline: "TWO SIDES, ONE STAGE",
       description:
         "A structured discussion where two sides explore different perspectives on a topic or idea. Designed to spark thoughtful conversations, challenge assumptions, and encourage audience participation.",
     },
     {
       name: "Panel",
-      headline: "MULTI-VOICE DISCUSSION",
       description:
         "A moderated conversation featuring multiple speakers sharing diverse experiences and viewpoints. Best suited for broader themes, emerging trends, or topics that benefit from varied industry perspectives.",
     },
     {
       name: "Fireside Chat",
-      headline: "INFORMAL INTERVIEW",
       description:
         "An informal and conversational session between a host and a guest speaker. More personal and story-driven, this format focuses on experiences, lessons, and honest insights rather than formal presentations.",
     },
     {
       name: "Workshop",
-      headline: "HANDS-ON SESSION",
       description:
         "An interactive, hands-on session where participants actively learn, build, or practice something new. Attendees leave with practical knowledge, useful takeaways, or tangible outcomes they can apply immediately.",
     },

@@ -24,7 +24,6 @@ function scrollTo(href: string) {
 export function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
-  const [pastHero, setPastHero] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const lastY = useRef(0);
 
@@ -32,7 +31,6 @@ export function Nav() {
     const onScroll = () => {
       const y = window.scrollY;
       setScrolled(y > 40);
-      setPastHero(y > window.innerHeight * 0.85);
 
       if (!menuOpen) {
         if (y > lastY.current && y > 80) {
@@ -56,9 +54,7 @@ export function Nav() {
     >
       {/* Nav pill */}
       <nav
-        className={`flex w-full items-center justify-between rounded-3xl px-4 py-3 transition-[max-width,background-color,backdrop-filter] duration-300 ease-in-out ${
-          pastHero ? "max-w-[834px]" : "max-w-[1072px]"
-        } ${
+        className={`relative flex w-full max-w-[1440px] items-center justify-between rounded-3xl px-4 py-3 transition-[background-color,backdrop-filter] duration-300 ease-in-out ${
           scrolled || menuOpen ? "bg-black/70 backdrop-blur-md" : ""
         }`}
         aria-label="Main navigation"
@@ -71,8 +67,8 @@ export function Nav() {
           <Image src="/red-logo.svg" alt="Decoded" width={32} height={32} />
         </a>
 
-        {/* Desktop links */}
-        <ul className="hidden items-center gap-1 md:flex">
+        {/* Desktop links — absolutely centered so they sit at true 50% */}
+        <ul className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 md:flex">
           {links.map(({ label, href }) => (
             <li key={href}>
               <a
@@ -113,7 +109,7 @@ export function Nav() {
       <AnimatePresence>
         {menuOpen && (
           <motion.div
-            className="mt-2 w-full max-w-[1072px] overflow-hidden rounded-3xl bg-black/80 backdrop-blur-md md:hidden"
+            className="mt-2 w-full max-w-[1440px] overflow-hidden rounded-3xl bg-black/80 backdrop-blur-md md:hidden"
             initial={{ opacity: 0, y: -8, scaleY: 0.95 }}
             animate={{ opacity: 1, y: 0, scaleY: 1 }}
             exit={{ opacity: 0, y: -8, scaleY: 0.95 }}

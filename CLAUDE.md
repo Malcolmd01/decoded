@@ -127,6 +127,8 @@ Tailwind v4 uses `@theme {}` in CSS — **no `tailwind.config.ts`**.
 
 Fonts self-hosted in `public/fonts/`, loaded via `next/font/local` in `app/layout.tsx` (variables `--next-font-headline` / `--next-font-body`). **Do not use Inter, Roboto, or system fonts.**
 
+`<body>` has `overscroll-none` — prevents rubber-band scroll (iOS/macOS) from revealing the fixed footer behind the content at the top/bottom of the page.
+
 Tailwind classes: `text-black`, `bg-red`, `text-off-white`, `font-headline`, `font-body`.
 
 ---
@@ -169,17 +171,19 @@ Reduced motion: `useReducedMotion()` from `hooks/useReducedMotion.ts` — pass `
 
 **Hero wave background (`HeroWave.tsx`):** Two blurred div layers, each with a `motion.path` that morphs between 3 random SVG keyframes. `COUNT = 10` fixed interior peaks; x positions are generated once per layer (`makeXs()`) and held constant across keyframes so morphing only interpolates Y — producing a natural mountain-range silhouette. Layer 1: ambient glow (`blur(90px)`, opacity 0.25, dur 5–12s). Layer 2: definition glow (`blur(35px)`, opacity 0.65, dur 7–16s). Both use `repeatType: "mirror"` for seamless back-and-forth. No Y-axis translation on the wrapper — the wave base stays anchored to the bottom. Peak shape tuning: adjust `baseY / minY / maxY` in the `buildKeyframes()` calls inside `useEffect`. Outer wrapper fades in `opacity: 0 → 1` over 2s after 1s delay.
 
-**Nav (`features/nav/Nav.tsx`):** `"use client"`. `motion.header` with `y: "-100%"` hide on scroll-down (>80px) / show on scroll-up — paused when mobile menu is open. Pill resizes `max-w-[1072px] → max-w-[834px]` (CSS transition) once scrollY > 85% of viewport height, matching Framer's `DesktopOnScroll` variant. Scroll listener adds `bg-black/70 backdrop-blur-md` at >40px. `onScroll()` called immediately on mount so blur/size state is correct on page reload mid-scroll. Desktop: logo left, links center (roll-up hover), "Apply to speak" → `/speaker-form` right. Mobile: burger → dropdown card with staggered links + full-width CTA → `/speaker-form`. All section links use `el.scrollIntoView({ behavior: "smooth" })`. `lastY` stored in `useRef` (not state) to avoid re-renders.
+**Nav (`features/nav/Nav.tsx`):** `"use client"`. `motion.header` with `y: "-100%"` hide on scroll-down (>80px) / show on scroll-up — paused when mobile menu is open. Fixed `max-w-[1440px]` pill — no shrink behavior. Scroll listener adds `bg-black/70 backdrop-blur-md` at >40px. `onScroll()` called immediately on mount so blur state is correct on page reload mid-scroll. Desktop: logo left, links `absolute left-1/2 -translate-x-1/2` (true geometric center), CTA right. Mobile: burger → dropdown card with staggered links + full-width CTA → `/speaker-form`. All section links use `el.scrollIntoView({ behavior: "smooth" })`. `lastY` stored in `useRef` (not state) to avoid re-renders.
 
 **About blinds reveal (`About.tsx`):** `"use client"`. Words rendered as `<span data-word>` on SSR (fully readable). After mount, `useEffect` calls `measureLines()` which groups words by `offsetTop` (4px tolerance) into visual lines. Each line renders as `relative block overflow-hidden` with a static text span underneath and an `absolute inset-0 bg-white` `motion.span` on top. The white panel starts at `x: 0%` (covering text) and slides to `±105%` on scroll-in. Uses `variants` with `hidden: { transition: { duration: 0 } }` for instant off-screen reset so the animation replays every time the section enters the viewport (`once: false`).
 
-**Ticker seamless loop:** `TickerContent` uses `pl-8 md:pl-[30px]` (left padding only, not `px-8`). Right padding causes a double-gap at the loop junction. Renders **3 copies** with `x: ["0%", "-33.33%"]` (= one copy width). Two copies caused a visible gap on screens wider than ~1100px. Duration 30s (scaled from 20s to keep same visual speed with 3 copies).
+**Ticker seamless loop:** `TickerContent` uses `pl-8 md:pl-[30px]` (left padding only). Right padding causes a double-gap at the loop junction. Renders **3 copies** animating `x: ["0%", "-33.33%"]`. Duration 35s. Separator between words is `next/image` `red-logo.svg` (72px mobile / 88px desktop), replacing the old inline Bauhaus SVG.
 
 **Roll-up hover (nav links, footer links):** Use Tailwind CSS transitions, not Framer Motion. Parent must be `relative block overflow-hidden group` — `block` is required; inline elements do not clip absolutely positioned children. Two stacked `<span>`s inside: first `block group-hover:-translate-y-full`; second `absolute inset-0 translate-y-full group-hover:translate-y-0`. Used in `Nav.tsx` desktop links and footer `RollLink` component.
 
 **Footer (`features/footer/Footer.tsx`):** `"use client"` (needed for smooth scroll). Fixed `bottom-0 z-0 h-[680px] md:h-[650px]` red, `px-[30px] py-8`. Hash links (`#hero`, `#about`, etc.) use same `scrollIntoView({ behavior: "smooth" })` as the nav — `mailto:` and external links use default browser behaviour. **Top:** `( Programme )` label + Clash Display description left (max-w 367px); Navigation / Contact / Connect columns right — stack `flex-col` below `md`, go `flex-row` at `md+`. Navigation links are `uppercase tracking-wider font-headline`. **Bottom:** Decoded wordmark logo spans `w-full` (`brightness-0`) + copyright bar. **Responsive:** top section stacks `flex-col` on mobile (lg → row); mobile bottom order is copyright → powered by + Amplify logo → Decoded logo; desktop bottom is logo → copyright | powered-by row. `footer.data.ts` contains all copy. Amplify logo at `public/Amplify-logo.svg`.
 
-**FormatCard pixel mask reveal (`FormatCard.tsx`):** `"use client"`. Each card's image is covered by a 15×15 grid of cells (two stacked layers: red below, white on top). On `useInView` (`once: true`, `margin: "-10%"`), `useAnimate` fades each cell's `opacity` to 0 row-by-row from top to bottom over `REVEAL_DURATION` (0.9s) after a `REVEAL_DELAY` (0.2s). Two jitter offsets create the "scan line" look: white cells subtract a random `BLEED` (≤0.18s) so they clear early and briefly expose red below the line; red cells add a random `JITTER` (≤0.1s) so fragments linger above it. Reduced motion skips the overlay entirely. Tunables (`GRID`, `REVEAL_DELAY`, `REVEAL_DURATION`, `WHITE_DUR`, `RED_DUR`, `JITTER`, `BLEED`) are module-level constants at the top of the file. `FormatCard` accepts a `priority?: boolean` prop — `Formats.tsx` passes `priority={i === 0}` so only the first card preloads its image; the rest lazy-load. Image paths are derived from format name: `/${name.toLowerCase().replace(/\s/g, "-")}.png` — actual PNGs live in `public/` (`tech-talks.png`, `live-demo.png`, `debate.png`, `panel.png`, `fireside-chat.png`, `workshop.png`). **Layout:** the text column uses `md:self-start` so it does not stretch to match the `aspect-square` image height — without this, `justify-between` would pin the description to the bottom of a very tall cell on wide screens.
+**FormatCard pixel mask reveal (`FormatCard.tsx`):** `"use client"`. Image covered by a single `<canvas>` (replaces old 450-div grid — 1 DOM node vs 2,700). `PixelCanvas` component: `ResizeObserver` syncs buffer at `displaySize × devicePixelRatio`; draws white cover before animation starts. On `inView`, one `rAF` loop runs: red pass first (behind), white pass on top — per-cell opacities computed from `Float32Array` timings built once at start. `BLEED` (≤0.18s early white start) exposes red below the scan line; `JITTER` (≤0.1s extra red delay) leaves fragments above it. Loop cancels itself after all cells clear. Tunables: `GRID / REVEAL_DELAY / REVEAL_DURATION / WHITE_DUR / RED_DUR / JITTER / BLEED`. `onOpen?: () => void` prop — clicking the image or the "Learn more →" button at the bottom of the text column opens `FormatDrawer`. Image paths: `/${name.toLowerCase().replace(/\s/g, "-")}.png`. Reduced motion skips canvas entirely.
+
+**FormatDrawer (`features/formats/FormatDrawer.tsx`):** `"use client"`. Fixed right panel (`max-w-[480px]`, `z-40`, `bg-black`). Slides in `x: "100%" → 0` ease `[0.22, 1, 0.36, 1]` over 450ms. Content (name label + red divider + headline + description) fades up 150ms after panel starts. Backdrop (`bg-black/70 backdrop-blur-sm`, `z-40`) closes on click. `Escape` key also closes. Body scroll locked while open. `Formats.tsx` holds `active: Format | null` state and passes `onOpen={() => setActive(format)}` to each card.
 
 ---
 
@@ -193,7 +197,7 @@ Session submission flow for potential speakers. Separate page, not part of the h
 
 **Validation (`lib/validation/schema.ts`):** Zod v4. `z.discriminatedUnion("speakerType", [...])` intersected with `sessionFields`. All fields have explicit error messages and `max()` caps. Shared between client (RHF resolver) and server (`safeParse` in route).
 
-**API route (`app/api/speaker-submission/route.ts`):** JSON parse (try/catch) → `safeParse` (400 on invalid) → `buildAdminEmail()` (sectioned HTML table, all values HTML-escaped) → `sendSessionSubmissionEmail`. Confirmation to applicant is non-blocking (`.catch` only).
+**API route (`app/api/speaker-submission/route.ts`):** JSON parse (try/catch) → `safeParse` (400 on invalid) → `buildAdminEmail()` (sectioned HTML table, all values HTML-escaped). **Email sends are currently commented out for demo** — route returns `{ success: true }` immediately and logs the payload to the server console. Re-enable by uncommenting the `sendSessionSubmissionEmail` and `sendConfirmationEmail` calls (marked `TODO`).
 
 **Email (`lib/email/`):**
 - `transporter.ts` — `EmailClient` from `@azure/communication-email`. Guards for missing `AZURE_COMMUNICATION_CONNECTION_STRING` with a throw at module load. Exports `SENDER_EMAIL` and `ADMIN_EMAILS` (comma-separated → array of `{ address }` objects).
@@ -215,9 +219,10 @@ NEXT_PUBLIC_BASE_URL                      # for logo URL in confirmation email (
 
 Built from Framer's `/404` page (`nodeId="BigvQa7Dl"`). `"use client"` for Framer Motion.
 
-- **Background:** `bg-black` full-screen centered stack — matches Framer `backgroundColor="/Primary/Black"`
-- **404 number:** `font-headline font-bold` with `fontSize: clamp(96px, 22vw, 320px)` — Clash Display Bold, white, matching Framer's `font="FS;Clash Display-bold"`
-- **Button:** `<Button variant="light">Back to Home</Button>` wrapped in `<Link href="/">` — matches Framer's Light variant button pointing to `/`
+- **Background:** `bg-black` full-screen centered stack
+- **404 number:** `font-headline font-bold` with `fontSize: clamp(96px, 22vw, 320px)` — Clash Display Bold
+- **Colours:** main `text-red` (`#E81A2D`) on top; static shadow `text-red-light` (`#FF8A7A`) offset right via `translate-x-[10px] sm:translate-x-[20px] lg:translate-x-[35px]` — no animation
+- **Button:** `<Button variant="light">Back to Home</Button>` in `<Link href="/">` — matches Framer's Light variant
 - No Nav, no Footer — standalone full-screen page
 
 ---

@@ -5,25 +5,33 @@ import { motion } from "framer-motion";
 import { Button } from "@/components";
 
 export default function NotFound() {
-
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-black px-5">
       <div className="flex flex-col items-center gap-8 md:gap-10">
 
-        {/* 404 glitch */}
+        {/* 404 — primary red with static secondary shadow to the right */}
         <motion.div
           className="relative select-none"
           initial={{ opacity: 0, y: 32 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         >
+          {/* Shadow — secondary colour, static offset right */}
           <span
-            className="block font-headline font-bold leading-none tracking-tight text-white"
+            aria-hidden
+            className="pointer-events-none absolute inset-0 block translate-x-[10px] font-headline font-bold leading-none tracking-tight text-red-light sm:translate-x-[20px] lg:translate-x-[35px]"
             style={{ fontSize: "clamp(96px, 22vw, 320px)" }}
           >
             404
           </span>
 
+          {/* Main — primary colour, sits on top */}
+          <span
+            className="relative block font-headline font-bold leading-none tracking-tight text-red"
+            style={{ fontSize: "clamp(96px, 22vw, 320px)" }}
+          >
+            404
+          </span>
         </motion.div>
 
         {/* Copy + CTA */}

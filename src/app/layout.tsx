@@ -48,7 +48,7 @@ export default function RootLayout({
       lang="en"
       className={`${headline.variable} ${body.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-body bg-black text-black">
+      <body className="min-h-full flex flex-col font-body bg-black text-black overscroll-none">
         <MobileProvider>{children}</MobileProvider>
       </body>
     </html>
