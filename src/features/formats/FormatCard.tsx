@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { useAnimate, useInView, motion } from "framer-motion";
+import { ArrowCircleUpRight } from "@phosphor-icons/react";
 import { BrutalismIcon } from "@/components";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import type { Format } from "./formats.data";
@@ -168,27 +169,25 @@ export function FormatCard({ format, priority = false, index, onOpen }: Props) {
       className="grid w-full grid-cols-1 gap-10 rounded-2xl bg-black p-5 text-white md:grid-cols-2 md:gap-16 md:p-[30px]"
     >
       <div ref={scope} className="contents">
-        <div className="order-last flex flex-col justify-between gap-8 md:order-first md:self-start">
-          <div className="flex flex-col gap-3">
+        <div className="order-last flex flex-col justify-between gap-8 h-full md:order-first md:self-start">
+          <div className="flex flex-col gap-[8px]">
 
             <h3 data-animate-text className="font-headline text-3xl font-semibold leading-[1.05] tracking-tight md:text-4xl opacity-0 uppercase">
               {format.name}
             </h3>
-          </div>
+          
           <p data-animate-text className="font-body text-[16px] font-normal leading-relaxed text-white md:text-lg opacity-0">
             {format.description}
           </p>
-
+</div>
           {onOpen && (
             <button
               data-animate-text
               onClick={onOpen}
-              className="group flex items-center gap-2 self-start font-body text-sm font-semibold text-white/50 opacity-0 transition-colors hover:text-white"
+              className="group flex w-full items-center justify-between rounded-lg bg-grey/30 p-6 font-body font-semibold text-white opacity-0 transition-colors hover:bg-grey/50 md:p-[30px]"
             >
               Learn more
-              <svg viewBox="0 0 16 16" fill="none" className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h10M9 4l4 4-4 4" />
-              </svg>
+              <ArrowCircleUpRight className="h-6 w-6 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" weight="regular" />
             </button>
           )}
         </div>

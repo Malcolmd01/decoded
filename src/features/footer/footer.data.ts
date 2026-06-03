@@ -23,7 +23,7 @@ export const footerContent = {
       { label: "LinkedIn",  href: "https://linkedin.com" },
     ],
   },
-  copyright: "© 2026 Decoded. All rights reserved.",
+  copyright: "© 2026 EG. All rights reserved.",
   poweredBy: "Powered by:",
   logo: {
     src: "/decoded_logo_footer.svg",

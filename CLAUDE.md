@@ -10,7 +10,8 @@
 - Tailwind CSS v4 — all styling · Framer Motion v12 — all animation
 - `cn()` via `clsx` + `tailwind-merge` in `lib/cn.ts`
 - Forms: `react-hook-form` + `@hookform/resolvers` + `zod` v4
-- Email: `@azure/communication-email` — Azure Communication Services
+- Email: `@aws-sdk/client-sesv2` — AWS SES v2
+- Icons: `@phosphor-icons/react` — used for `ArrowCircleUpRight` in FormatCard and anywhere directional icons are needed
 - No MUI, Emotion, or Radix unless explicitly requested
 - Favicon: `metadata.icons: { icon: "/red-logo.svg" }` in `app/layout.tsx` — no `favicon.ico`
 
@@ -93,7 +94,7 @@ MCP plugin must stay open in Framer (`Cmd/Ctrl+K` → search `MCP`).
 2. `mcp__framer-mcp__getNodeXml` — read target node
 3. Extract all copy from Framer — never hardcode placeholders
 
-**Node IDs:** Homepage `/` `augiA20Il` · Footer `SfyLHF1Qk` · Footer email link `DXmBIrfwT` · Basic card `yGpvNnjfT` · Formats card `qNoQUxbRC` · FAQs `V_ypTBFNP` · Accordion `RhoLTykGG` · Button `qgP76QxBv` · Nav Bar `MRYrCOnoR` · Nav Bar Item `AwheYFvjb`
+**Node IDs:** Homepage `/` `augiA20Il` · Footer `SfyLHF1Qk` · Footer email link `DXmBIrfwT` · Basic card `yGpvNnjfT` · Formats card `qNoQUxbRC` · "ye" / Learn more button `j75bhEKWC` · FAQs `V_ypTBFNP` · Accordion `RhoLTykGG` · Button `qgP76QxBv` · Nav Bar `MRYrCOnoR` · Nav Bar Item `AwheYFvjb` · Email template design page `gxEyqJLt6`
 
 ---
 
@@ -171,19 +172,21 @@ Reduced motion: `useReducedMotion()` from `hooks/useReducedMotion.ts` — pass `
 
 **Hero wave background (`HeroWave.tsx`):** Two blurred div layers, each with a `motion.path` that morphs between 3 random SVG keyframes. `COUNT = 10` fixed interior peaks; x positions are generated once per layer (`makeXs()`) and held constant across keyframes so morphing only interpolates Y — producing a natural mountain-range silhouette. Layer 1: ambient glow (`blur(90px)`, opacity 0.25, dur 5–12s). Layer 2: definition glow (`blur(35px)`, opacity 0.65, dur 7–16s). Both use `repeatType: "mirror"` for seamless back-and-forth. No Y-axis translation on the wrapper — the wave base stays anchored to the bottom. Peak shape tuning: adjust `baseY / minY / maxY` in the `buildKeyframes()` calls inside `useEffect`. Outer wrapper fades in `opacity: 0 → 1` over 2s after 1s delay.
 
+**Hero content animation (`Hero.tsx`):** `"use client"`. Logo, headline, and CTA button each fade in (`opacity: 0→1, y: 12→0`, 0.8s ease `[0.4, 0, 0.2, 1]`) with staggered delays timed to after the Loader exits: `LOGO_DELAY = 2.5s`, `TEXT_DELAY = 3.0s`, `BUTTON_DELAY = 3.3s`. `fadeIn(delay)` helper returns `{}` when `useReducedMotion()` is true. CTA links to `/speaker-form` (commented-out Microsoft Forms URL preserved above it).
+
 **Nav (`features/nav/Nav.tsx`):** `"use client"`. `motion.header` with `y: "-100%"` hide on scroll-down (>80px) / show on scroll-up — paused when mobile menu is open. Fixed `max-w-[1440px]` pill — no shrink behavior. Scroll listener adds `bg-black/70 backdrop-blur-md` at >40px. `onScroll()` called immediately on mount so blur state is correct on page reload mid-scroll. Desktop: logo left, links `absolute left-1/2 -translate-x-1/2` (true geometric center), CTA right. Mobile: burger → dropdown card with staggered links + full-width CTA → `/speaker-form`. All section links use `el.scrollIntoView({ behavior: "smooth" })`. `lastY` stored in `useRef` (not state) to avoid re-renders.
 
 **About blinds reveal (`About.tsx`):** `"use client"`. Words rendered as `<span data-word>` on SSR (fully readable). After mount, `useEffect` calls `measureLines()` which groups words by `offsetTop` (4px tolerance) into visual lines. Each line renders as `relative block overflow-hidden` with a static text span underneath and an `absolute inset-0 bg-white` `motion.span` on top. The white panel starts at `x: 0%` (covering text) and slides to `±105%` on scroll-in. Uses `variants` with `hidden: { transition: { duration: 0 } }` for instant off-screen reset so the animation replays every time the section enters the viewport (`once: false`).
 
-**Ticker seamless loop:** `TickerContent` uses `pl-8 md:pl-[30px]` (left padding only). Right padding causes a double-gap at the loop junction. Renders **3 copies** animating `x: ["0%", "-33.33%"]`. Duration 35s. Separator between words is `next/image` `red-logo.svg` (72px mobile / 88px desktop), replacing the old inline Bauhaus SVG.
+**Ticker seamless loop:** `TickerContent` uses `pr-8 md:pr-[30px]` (right padding only — provides the gap between the last word of one copy and the first word of the next). Renders **3 copies** animating `x: ["0%", "-33.33%"]`. Duration 35s. Separator between words is `next/image` `red-logo.svg` (`size-[72px] md:size-[64px]`), replacing the old inline Bauhaus SVG.
 
 **Roll-up hover (nav links, footer links):** Use Tailwind CSS transitions, not Framer Motion. Parent must be `relative block overflow-hidden group` — `block` is required; inline elements do not clip absolutely positioned children. Two stacked `<span>`s inside: first `block group-hover:-translate-y-full`; second `absolute inset-0 translate-y-full group-hover:translate-y-0`. Used in `Nav.tsx` desktop links and footer `RollLink` component.
 
 **Footer (`features/footer/Footer.tsx`):** `"use client"` (needed for smooth scroll). Fixed `bottom-0 z-0 h-[680px] md:h-[650px]` red, `px-[30px] py-8`. Hash links (`#hero`, `#about`, etc.) use same `scrollIntoView({ behavior: "smooth" })` as the nav — `mailto:` and external links use default browser behaviour. **Top:** `( Programme )` label + Clash Display description left (max-w 367px); Navigation / Contact / Connect columns right — stack `flex-col` below `md`, go `flex-row` at `md+`. Navigation links are `uppercase tracking-wider font-headline`. **Bottom:** Decoded wordmark logo spans `w-full` (`brightness-0`) + copyright bar. **Responsive:** top section stacks `flex-col` on mobile (lg → row); mobile bottom order is copyright → powered by + Amplify logo → Decoded logo; desktop bottom is logo → copyright | powered-by row. `footer.data.ts` contains all copy. Amplify logo at `public/Amplify-logo.svg`.
 
-**FormatCard pixel mask reveal (`FormatCard.tsx`):** `"use client"`. Image covered by a single `<canvas>` (replaces old 450-div grid — 1 DOM node vs 2,700). `PixelCanvas` component: `ResizeObserver` syncs buffer at `displaySize × devicePixelRatio`; draws white cover before animation starts. On `inView`, one `rAF` loop runs: red pass first (behind), white pass on top — per-cell opacities computed from `Float32Array` timings built once at start. `BLEED` (≤0.18s early white start) exposes red below the scan line; `JITTER` (≤0.1s extra red delay) leaves fragments above it. Loop cancels itself after all cells clear. Tunables: `GRID / REVEAL_DELAY / REVEAL_DURATION / WHITE_DUR / RED_DUR / JITTER / BLEED`. `onOpen?: () => void` prop — clicking the image or the "Learn more →" button at the bottom of the text column opens `FormatDrawer`. Image paths: `/${name.toLowerCase().replace(/\s/g, "-")}.png`. Reduced motion skips canvas entirely.
+**FormatCard pixel mask reveal (`FormatCard.tsx`):** `"use client"`. Image covered by a single `<canvas>` (replaces old 450-div grid — 1 DOM node vs 2,700). `PixelCanvas` component: `ResizeObserver` syncs buffer at `displaySize × devicePixelRatio`; draws white cover before animation starts. On `inView`, one `rAF` loop runs: red pass first (behind), white pass on top — per-cell opacities computed from `Float32Array` timings built once at start. `BLEED` (≤0.18s early white start) exposes red below the scan line; `JITTER` (≤0.1s extra red delay) leaves fragments above it. Loop cancels itself after all cells clear. Tunables: `GRID / REVEAL_DELAY / REVEAL_DURATION / WHITE_DUR / RED_DUR / JITTER / BLEED`. `onOpen?: () => void` prop — clicking the image or "Learn more" button opens `FormatDrawer`. Image paths: `/${name.toLowerCase().replace(/\s/g, "-")}.png`. Reduced motion skips canvas entirely. **Learn more button** matches Framer's "ye" component (`j75bhEKWC`): `w-full bg-grey/30 rounded-lg p-6 md:p-[30px]`, space-between flex, `ArrowCircleUpRight` from `@phosphor-icons/react` (24px, nudges up-right on hover), hover bg `grey/50`.
 
-**FormatDrawer (`features/formats/FormatDrawer.tsx`):** `"use client"`. Fixed right panel (`max-w-[480px]`, `z-40`, `bg-black`). Slides in `x: "100%" → 0` ease `[0.22, 1, 0.36, 1]` over 450ms. Content (name label + red divider + headline + description) fades up 150ms after panel starts. Backdrop (`bg-black/70 backdrop-blur-sm`, `z-40`) closes on click. `Escape` key also closes. Body scroll locked while open. `Formats.tsx` holds `active: Format | null` state and passes `onOpen={() => setActive(format)}` to each card.
+**FormatDrawer (`features/formats/FormatDrawer.tsx`):** `"use client"`. Fixed right panel `w-full lg:max-w-[50vw]` (`z-60`, `bg-black`), scrollable. Slides in `x: "100%" → 0` ease `[0.22, 1, 0.36, 1]` over 450ms. Backdrop (`bg-black/70 backdrop-blur-sm`, `z-60`) closes on click. `Escape` key closes; body scroll locked while open. `Formats.tsx` holds `active: Format | null` state. Layout (top→bottom): header row (format name left + close button right) · image (`w-full md:max-w-[55%]`, `aspect-[4/3]`, `object-cover`) · four `Row` content sections (dot label left + content right, stacks vertically on mobile via `flex-col md:grid`) · "Apply to speak" CTA link (`w-4/5` centered, `bg-red`, → `/speaker-form`) · footer `mt-auto`. **Four rows:** "What it is" (paragraph) · "Best for" (list with `border-white/70` item dividers) · "How it runs" (2-col table: label `text-white/25` | value `text-white/50`, `divide-white/70`) · "What to expect" (3 blocks: bold title + dim description). All row separators use `border-white/70`. Data comes from `formats.data.ts` — `FormatMeta` + `ExpectBlock` types, rich content for all 6 formats (heroTitle, tag, drawerTitle, whatItIs, bestFor, meta, expect).
 
 ---
 
@@ -191,27 +194,25 @@ Reduced motion: `useReducedMotion()` from `hooks/useReducedMotion.ts` — pass `
 
 Session submission flow for potential speakers. Separate page, not part of the homepage scroll.
 
-**Page:** `app/speaker-form/page.tsx` — `bg-red min-h-screen py-24`, renders `<SpeakerForm />`.
+**Page:** `app/speaker-form/page.tsx` — `bg-red min-h-screen`, `pt-16 pb-24 md:pt-24`. Wraps everything in `mx-auto max-w-5xl`. Has a `←  Back` link (top-left, `<Link href="/">`, touch-friendly `py-2 px-1`, nudges arrow on hover) above the form card.
 
-**Form (`features/speaker-form/SpeakerForm.tsx`):** `"use client"`. `react-hook-form` + `zodResolver`. Card is `bg-black/70 backdrop-blur-md border-white/20`. `speakerType` defaults to `undefined` — form is hidden until a type is selected. Selecting a type reveals an animated **Continue** button (slides up, bouncing arrow). Clicking Continue locks the radios (disabled + unselected fades to 25% opacity) and reveals the full form with a `y: 0, opacity: 1` entrance. `defaultValues` cast as `DefaultValues<SessionSubmissionFormValues>` to satisfy the discriminated union type. On submit: loading state + disabled button → POST `/api/speaker-submission` → `SuccessModal` (5s countdown + `useRouter` redirect to `/`) or inline error.
+**Form (`features/speaker-form/SpeakerForm.tsx`):** `"use client"`. `react-hook-form` + `zodResolver`. Card is `bg-black/70 backdrop-blur-md border-white/20`. `speakerType` defaults to `undefined` — form is hidden until a type is selected. Selecting a type reveals an animated **Continue** button (slides up, bouncing arrow). Clicking Continue locks the radios (disabled + unselected fades to 25% opacity) and reveals the full form with a `y: 0, opacity: 1` entrance. `defaultValues` cast as `DefaultValues<SessionSubmissionFormValues>` to satisfy the discriminated union type. `gcx@eg.dk` rendered as `<a href="mailto:gcx@eg.dk">`. On submit: loading state + disabled button → POST `/api/speaker-submission` → `SuccessModal` (5s countdown + `useRouter` redirect to `/`) or inline error.
 
 **Validation (`lib/validation/schema.ts`):** Zod v4. `z.discriminatedUnion("speakerType", [...])` intersected with `sessionFields`. All fields have explicit error messages and `max()` caps. Shared between client (RHF resolver) and server (`safeParse` in route).
 
-**API route (`app/api/speaker-submission/route.ts`):** JSON parse (try/catch) → `safeParse` (400 on invalid) → `buildAdminEmail()` (sectioned HTML table, all values HTML-escaped). **Email sends are currently commented out for demo** — route returns `{ success: true }` immediately and logs the payload to the server console. Re-enable by uncommenting the `sendSessionSubmissionEmail` and `sendConfirmationEmail` calls (marked `TODO`).
+**API route (`app/api/speaker-submission/route.ts`):** JSON parse (try/catch) → `safeParse` (400 on invalid) → `buildAdminEmail()` (sectioned HTML table, all values HTML-escaped) → `sendSessionSubmissionEmail` → fire-and-forget `sendConfirmationEmail`. **Email sends are live** — remove the Azure env vars to disable.
 
 **Email (`lib/email/`):**
-- `transporter.ts` — `EmailClient` from `@azure/communication-email`. Guards for missing `AZURE_COMMUNICATION_CONNECTION_STRING` with a throw at module load. Exports `SENDER_EMAIL` and `ADMIN_EMAILS` (comma-separated → array of `{ address }` objects).
-- `send-session-submission.ts` — `sendSessionSubmissionEmail` (to all `ADMIN_EMAILS`) + `sendConfirmationEmail` (to applicant). Both use `emailClient.beginSend(...).pollUntilDone()`.
+- `transporter.ts` — `SESv2Client` from `@aws-sdk/client-sesv2`. Region hardcoded to `eu-central-1`. No credentials passed — SDK auto-picks the ECS task role via the container credentials endpoint. Exports `sendMail({ to, subject, html, text? })` helper (returns `MessageId`), `SENDER_EMAIL` (`no-reply@insights.amplify.egsync.com`), and `ADMIN_EMAILS` (from env, comma-separated string array).
+- `send-session-submission.ts` — `sendSessionSubmissionEmail` (admin notification) + `sendConfirmationEmail` (applicant). **Currently in demo mode** — both functions log to console and return without sending. To go live: remove the `console.log` lines and uncomment the `sendMail(...)` calls marked in each function. Confirmation email is a fully responsive dark HTML template (`max-width:640px`, `#1e1e1e` bg) with: red header bar (`#e81a2d`) holding `decoded-logo-email.png` + `EG Logo V2 1.png` left and `Decoded Icon V3 1.png` overflowing right (`margin-bottom:-28px`); "WE GOT YOUR PROPOSAL" heading; body copy; "WHAT HAPPENS NEXT" 3-step table (Review / Discovery call / Confirmed); CTA banner (`rgb(72,18,18)`) with `gcx@eg.dk` + "GET IN TOUCH" button; footer (black, `decoded-logo-email.png` + copyright). **Fonts:** `@font-face` loads `ClashDisplay-Semibold.woff2` (headings) and `Aileron-600/700.woff2` (body) from `${NEXT_PUBLIC_BASE_URL}/fonts/` — falls back to `sans-serif`. **Responsive:** `@media (max-width:600px)` stacks step rows and CTA banner columns.
 
 **Required env vars:**
 ```
-AZURE_COMMUNICATION_CONNECTION_STRING=endpoint=https://<resource>.communication.azure.com/;accesskey=<key>
-SENDER_EMAIL=DoNotReply@<verified-domain>
-ADMIN_EMAILS=email@eg.dk,another@eg.dk   # comma-separated
-NEXT_PUBLIC_BASE_URL                      # for logo URL in confirmation email (production)
+ADMIN_EMAILS=email@eg.dk,another@eg.dk   # comma-separated — no AWS keys needed (ECS task role)
+NEXT_PUBLIC_BASE_URL                      # base URL for font + image paths in emails
 ```
 
-**Email logos:** SVGs don't render in email clients. Export a PNG to `public/decoded-logo-email.png` for the confirmation email header.
+**Email assets in `public/`:** `decoded-logo-email.png` (wordmark, header + footer) · `Decoded Icon V3 1.png` (overflowing header icon) · `EG Logo V2 1.png` (header, beside wordmark) · `Decoded Logo V4 1.png` (alternate wordmark). SVGs do not render in email clients — always use PNG.
 
 ---
 
@@ -240,6 +241,8 @@ Disables the client-side router cache so navigating back to any page forces a fr
 ---
 
 ## Rules
+
+**FAQ Accordion (`features/faq/Accordion.tsx`):** `linkifyAnswer(text)` helper splits answer strings on email regex and wraps matches in `<a href="mailto:…">` — answers render as JSX, not plain strings. Add new email addresses to `faq.data.ts` answer text; they auto-link.
 
 **Do:** match Framer spacing exactly · semantic HTML · `aria-expanded/controls` on accordion · `aria-hidden` on ticker · `next/image` for all images · `next/dynamic` + `ssr:false` for heavy client sections
 

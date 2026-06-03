@@ -54,7 +54,7 @@ export function Nav() {
     >
       {/* Nav pill */}
       <nav
-        className={`relative flex w-full max-w-[1440px] items-center justify-between rounded-3xl px-4 py-3 transition-[background-color,backdrop-filter] duration-300 ease-in-out ${
+        className={`relative flex w-full max-w-[1440px] items-center justify-between rounded-3xl p-3 transition-[background-color,backdrop-filter] duration-300 ease-in-out ${
           scrolled || menuOpen ? "bg-black/70 backdrop-blur-md" : ""
         }`}
         aria-label="Main navigation"

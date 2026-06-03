@@ -10,5 +10,19 @@
   ],
   "enabledPlugins": {
     "frontend-design@claude-plugins-official": true
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "agent",
+            "prompt": "You are a code quality checker. Run `git diff --name-only HEAD` to list files changed vs the last commit. For each changed .ts or .tsx file under src/: check for (1) unused imports, (2) dead or unreachable code, (3) duplicated logic that could be consolidated or extracted. Only flag real issues — not style preferences. If you find issues, output exactly this JSON so findings surface in the next turn: {\"hookSpecificOutput\": {\"hookEventName\": \"Stop\", \"additionalContext\": \"Code quality findings:\\n<your findings with file:line references>\"}}. If nothing significant is found, output nothing.",
+            "statusMessage": "Scanning changed files for dead code and duplication...",
+            "timeout": 120
+          }
+        ]
+      }
+    ]
   }
 }

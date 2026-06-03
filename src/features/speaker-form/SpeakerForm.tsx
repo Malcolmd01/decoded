@@ -129,9 +129,9 @@ export function SpeakerForm() {
         <h1 className="font-headline text-3xl font-semibold tracking-tight text-white">Speak at Decoded</h1>
         <p className="mt-2 font-body text-white/80">Got something worth sharing? We'd love to hear from you.</p>
         <p className="mt-8 font-body text-sm  text-white/60">Fill in the form below and our team 
-        <span className="text-white mx-1">
+        <a href="mailto:gcx@eg.dk" className="mx-1 text-white underline underline-offset-2 transition-colors hover:text-red-light">
           (gcx@eg.dk)
-        </span>
+        </a>
         will be in touch.</p>
         <p className="mt-2 font-body text-sm text-white/60">
 When you submit this form, it will not automatically collect your details like name and email address unless you provide it yourself.</p>

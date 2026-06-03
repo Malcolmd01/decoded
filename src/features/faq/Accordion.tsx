@@ -24,6 +24,15 @@ function PlusIcon({ open }: { open: boolean }) {
   );
 }
 
+function linkifyAnswer(text: string) {
+  const parts = text.split(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g);
+  return parts.map((part, i) =>
+    i % 2 === 1
+      ? <a key={i} href={`mailto:${part}`} className="text-white underline underline-offset-2 transition-colors hover:text-red">{part}</a>
+      : part
+  );
+}
+
 export function Accordion({ items }: Props) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const baseId = useId();
@@ -61,7 +70,7 @@ export function Accordion({ items }: Props) {
                   className="overflow-hidden"
                 >
                   <p className="px-6 pb-6 font-body text-base font-semibold leading-relaxed text-white/80">
-                    {item.answer}
+                    {linkifyAnswer(item.answer)}
                   </p>
                 </motion.div>
               )}

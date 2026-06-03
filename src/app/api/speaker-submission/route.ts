@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-// import {
-//   sendSessionSubmissionEmail,
-//   sendConfirmationEmail,
-// } from "@/lib/email/send-session-submission";
+import {
+  sendSessionSubmissionEmail,
+  sendConfirmationEmail,
+} from "@/lib/email/send-session-submission";
 import { sessionSubmissionSchema, type SessionSubmissionFormValues } from "@/lib/validation/schema";
 
 function esc(val: unknown): string {
@@ -92,21 +92,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: "Validation failed" }, { status: 400 });
   }
 
-  // TODO: re-enable when Azure email is configured
-  // try {
-  //   await sendSessionSubmissionEmail({
-  //     subject: `New Session Submission — ${result.data.fullName}`,
-  //     html: buildAdminEmail(result.data),
-  //   });
-  // } catch (err) {
-  //   console.error("Failed to send submission email:", err);
-  //   return NextResponse.json({ success: false, error: "Failed to send email" }, { status: 500 });
-  // }
+  // Demo mode — emails are commented out. To enable: configure AWS SES env vars
+  // in .env.local and uncomment the AWS code in lib/email/transporter.ts and
+  // lib/email/send-session-submission.ts.
+  console.log("[demo] submission received:", result.data);
 
-  // sendConfirmationEmail({ to: result.data.email, name: result.data.fullName }).catch((err) =>
-  //   console.error("Failed to send confirmation email:", err),
-  // );
+  sendSessionSubmissionEmail({
+    subject: `New Session Submission — ${result.data.fullName}`,
+    html: buildAdminEmail(result.data),
+  }).catch((err) => console.error("sendSessionSubmissionEmail:", err));
 
-  console.log("Demo submission:", result.data);
+  sendConfirmationEmail({ to: result.data.email, name: result.data.fullName }).catch((err) =>
+    console.error("sendConfirmationEmail:", err),
+  );
+
   return NextResponse.json({ success: true });
 }
