@@ -3,8 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   experimental: {
     staleTimes: {
-      static: 0,   // don't cache static pages in the client router cache
-      dynamic: 0,  // don't cache dynamic pages either
+      static: 30,   // don't cache static pages in the client router cache
+      dynamic: 30,  // don't cache dynamic pages either
     },
   },
   images: {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useAnimate, useInView, motion } from "framer-motion";
 import { ArrowCircleUpRightIcon } from "@phosphor-icons/react";

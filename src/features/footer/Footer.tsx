@@ -2,30 +2,36 @@
 
 import Image from "next/image";
 import { footerContent } from "./footer.data";
+import { useCallback } from "react";
 
-function scrollTo(href: string) {
+
+function RollLink({ label, href, className = "" }: { label: string; href: string; className?: string }) {
+  const isHash = href.startsWith("#");
+  
+  const scrollTo = useCallback((href: string) => {
   if (href === "#hero") {
     window.scrollTo({ top: 0, behavior: "smooth" });
     return;
   }
   const el = document.getElementById(href.replace("#", ""));
-  if (el) el.scrollIntoView({ behavior: "smooth" });
-}
+  el?.scrollIntoView({ behavior: "smooth" });
+}, []);
 
-function RollLink({ label, href, className = "" }: { label: string; href: string; className?: string }) {
-  const isHash = href.startsWith("#");
   return (
     <a
       href={href}
       onClick={isHash ? (e) => { e.preventDefault(); scrollTo(href); } : undefined}
-      className={`group relative block overflow-hidden  font-bold leading-snug ${className}`}
+      aria-label={label}
+      className="group relative block overflow-hidden font-bold leading-snug"
     >
-      <span className="block transition-transform duration-300 ease-in-out font-bold group-hover:-translate-y-full">
+      <span className="block transition-transform duration-300 group-hover:-translate-y-full" aria-hidden="true">
         {label}
       </span>
-      <span className="absolute inset-0 block translate-y-full transition-transform duration-300 ease-in-out font-bold group-hover:translate-y-0">
+      <span className="absolute inset-0 block translate-y-full transition-transform duration-300 group-hover:translate-y-0" aria-hidden="true">
         {label}
       </span>
+      {/* Visible to screen readers only */}
+      <span className="sr-only">{label}</span>
     </a>
   );
 }
@@ -40,7 +46,11 @@ function ColLabel({ children }: { children: string }) {
 
 export function Footer() {
   return (
-    <footer className="fixed inset-x-0 bottom-0 z-0 flex h-[680px] md:h-[650px] flex-col justify-between overflow-hidden bg-red px-5 py-6 md:px-[30px] md:py-8">
+<footer 
+  className="fixed inset-x-0 bottom-0 z-0 flex flex-col justify-between overflow-hidden 
+             bg-red px-5 py-6 md:px-8 lg:px-12
+             h-[clamp(400px, 62vh, 88vh)]"
+>
 
       {/* Top — programme + columns (gap=64px in Framer between this and bottom) */}
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between lg:pb-16">
@@ -54,7 +64,7 @@ export function Footer() {
         </div>
 
         {/* Right columns — gap=64px between each in Framer */}
-        <div className="flex flex-col gap-8 mt-2 md:flex-row md:gap-16">
+        <div className="flex md:flex-col flex-row gap-6 mt-2 mb-2 md:flex-row md:gap-16">
 
           {/* Navigation — label→links gap=8px, links gap=16px */}
           <div className="flex flex-col gap-2">
@@ -66,6 +76,8 @@ export function Footer() {
             </div>
           </div>
 
+      {/* Contact + Connect Group — Sits next to Navigation on lg+ */}
+        <div className="flex flex-row gap-4 md:gap-16 ">
           {/* Contact — gap=8px */}
           <div className="flex flex-col gap-2">
             <ColLabel>{footerContent.contact.label}</ColLabel>
@@ -87,6 +99,7 @@ export function Footer() {
               ))}
             </div>
           </div>
+       </div>
 
         </div>
       </div>
@@ -107,7 +120,7 @@ export function Footer() {
           alt={footerContent.logo.alt}
           width={footerContent.logo.width}
           height={footerContent.logo.height}
-          className="w-full h-fit brightness-0 lg:w-full"
+          className="w-full h-fit brightness-0 py-2 lg:w-full"
         />
 
         {/* Desktop only (md+): copyright | powered by in one row */}

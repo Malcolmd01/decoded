@@ -1,7 +1,6 @@
 "use client";
 import { Fragment } from "react";
 import Image from "next/image";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { tickerWords } from "./ticker.data";
 
