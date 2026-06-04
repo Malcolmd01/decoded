@@ -48,7 +48,7 @@ export function Footer() {
         {/* Programme — 367px in Framer, gap=8px label→desc */}
         <div className="flex flex-col gap-2 md:max-w-[367px]">
           <ColLabel>{footerContent.programme.label}</ColLabel>
-          <p className="font-headline text-sm font-semibold leading-snug tracking-tight md:text-xl">
+          <p className="font-body text-[24px] font-bold leading-snug tracking-tight ">
             {footerContent.programme.description}
           </p>
         </div>
@@ -73,7 +73,7 @@ export function Footer() {
               <RollLink
                 label={footerContent.contact.email}
                 href={`mailto:${footerContent.contact.email}`}
-                className="text-lg md:text-base"
+                className="text-xl"
               />
             </div>
           </div>
@@ -83,7 +83,7 @@ export function Footer() {
             <ColLabel>{footerContent.connect.label}</ColLabel>
             <div className="flex flex-col gap-2 pt-2">
               {footerContent.connect.links.map(({ label, href }) => (
-                <RollLink key={label} label={label} href={href} className="text-lg md:text-base font-body" />
+                <RollLink key={label} label={label} href={href} className="text-xl font-body" />
               ))}
             </div>
           </div>

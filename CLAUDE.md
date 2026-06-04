@@ -22,8 +22,8 @@
 ```
 src/
 ├── app/                        # Next.js App Router (layout.tsx, page.tsx, globals.css)
-│   ├── api/speaker-submission/ # POST route — validates + emails submission
-│   └── speaker-form/           # /speaker-form page
+│   ├── HomeClient.tsx          # Client boundary — manages SpeakerFormModal open state
+│   └── api/speaker-submission/ # POST route — validates + emails submission
 ├── components/                 # Shared primitives: Button, BrutalismIcon
 ├── features/                   # One folder per page section — self-contained
 │   ├── intro/
@@ -35,7 +35,7 @@ src/
 │   ├── reasons/
 │   ├── faq/
 │   ├── footer/
-│   └── speaker-form/           # SpeakerForm.tsx — session submission form
+│   └── speaker-form/           # SpeakerForm.tsx · SpeakerFormModal.tsx
 ├── hooks/                      # useReducedMotion.ts
 ├── lib/
 │   ├── cn.ts
@@ -62,20 +62,29 @@ features/hero/
 
 ## Page Layout — `app/page.tsx`
 
+`page.tsx` is a Server Component. Static sections are passed as props to `HomeClient`, which holds the `SpeakerFormModal` open state and distributes `onApply` callbacks.
+
 ```tsx
-<Nav />                       {/* fixed top-0 z-50 — above everything */}
+{/* app/page.tsx — Server Component */}
+<HomeClient
+  before={<><About /><Ticker /></>}
+  after={<><Ticker /><Reasons /><Faq /></>}
+  footer={<Footer />}
+/>
+
+{/* HomeClient renders: */}
+<Loader />
+<Nav onApply={open} />                {/* fixed top-0 z-50 */}
 <main className="flex flex-1 flex-col pb-[680px] md:pb-[650px]">
-  <Hero />                    {/* sticky top-0 z-10 */}
-  <div className="relative">  {/* sections scroll over Hero */}
-    <About />
-    <Ticker />
-    <Formats />
-    <Ticker />
-    <Reasons />
-    <Faq />
+  <Hero onApply={open} />             {/* sticky top-0 z-10 */}
+  <div className="relative">
+    {before}                          {/* About, Ticker */}
+    <Formats onApply={open} />
+    {after}                           {/* Ticker, Reasons, Faq */}
   </div>
-  <Footer />                  {/* fixed bottom-0 z-0 h-[680px] md:h-[650px] */}
+  {footer}                            {/* Footer — fixed bottom-0 z-0 */}
 </main>
+<SpeakerFormModal isOpen={formOpen} onClose={() => setFormOpen(false)} />
 ```
 
 - Nav is `fixed top-0 z-50` — always above hero and all sections
@@ -172,9 +181,9 @@ Reduced motion: `useReducedMotion()` from `hooks/useReducedMotion.ts` — pass `
 
 **Hero wave background (`HeroWave.tsx`):** Two blurred div layers, each with a `motion.path` that morphs between 3 random SVG keyframes. `COUNT = 10` fixed interior peaks; x positions are generated once per layer (`makeXs()`) and held constant across keyframes so morphing only interpolates Y — producing a natural mountain-range silhouette. Layer 1: ambient glow (`blur(90px)`, opacity 0.25, dur 5–12s). Layer 2: definition glow (`blur(35px)`, opacity 0.65, dur 7–16s). Both use `repeatType: "mirror"` for seamless back-and-forth. No Y-axis translation on the wrapper — the wave base stays anchored to the bottom. Peak shape tuning: adjust `baseY / minY / maxY` in the `buildKeyframes()` calls inside `useEffect`. Outer wrapper fades in `opacity: 0 → 1` over 2s after 1s delay.
 
-**Hero content animation (`Hero.tsx`):** `"use client"`. Logo, headline, and CTA button each fade in (`opacity: 0→1, y: 12→0`, 0.8s ease `[0.4, 0, 0.2, 1]`) with staggered delays timed to after the Loader exits: `LOGO_DELAY = 2.5s`, `TEXT_DELAY = 3.0s`, `BUTTON_DELAY = 3.3s`. `fadeIn(delay)` helper returns `{}` when `useReducedMotion()` is true. CTA links to `/speaker-form` (commented-out Microsoft Forms URL preserved above it).
+**Hero content animation (`Hero.tsx`):** `"use client"`. Logo, headline, and CTA button each fade in (`opacity: 0→1, y: 12→0`, 0.8s ease `[0.4, 0, 0.2, 1]`) with staggered delays timed to after the Loader exits: `LOGO_DELAY = 2.5s`, `TEXT_DELAY = 3.0s`, `BUTTON_DELAY = 3.3s`. `fadeIn(delay)` helper returns `{}` when `useReducedMotion()` is true. CTA calls `onApply` prop to open `SpeakerFormModal`.
 
-**Nav (`features/nav/Nav.tsx`):** `"use client"`. `motion.header` with `y: "-100%"` hide on scroll-down (>80px) / show on scroll-up — paused when mobile menu is open. Fixed `max-w-[1440px]` pill — no shrink behavior. Scroll listener adds `bg-black/70 backdrop-blur-md` at >40px. `onScroll()` called immediately on mount so blur state is correct on page reload mid-scroll. Desktop: logo left, links `absolute left-1/2 -translate-x-1/2` (true geometric center), CTA right. Mobile: burger → dropdown card with staggered links + full-width CTA → `/speaker-form`. All section links use `el.scrollIntoView({ behavior: "smooth" })`. `lastY` stored in `useRef` (not state) to avoid re-renders.
+**Nav (`features/nav/Nav.tsx`):** `"use client"`. `motion.header` with `y: "-100%"` hide on scroll-down (>80px) / show on scroll-up — paused when mobile menu is open. Fixed `max-w-[1440px]` pill — no shrink behavior. Scroll listener adds `bg-black/70 backdrop-blur-md` at >40px. `onScroll()` called immediately on mount so blur state is correct on page reload mid-scroll. Desktop: logo left, links `absolute left-1/2 -translate-x-1/2` (true geometric center), CTA right. Mobile: burger → dropdown card with staggered links + full-width CTA. Both CTAs call `onApply: () => void` prop (passed from `HomeClient`) to open `SpeakerFormModal`. All section links use `el.scrollIntoView({ behavior: "smooth" })`. `lastY` stored in `useRef` (not state) to avoid re-renders.
 
 **About blinds reveal (`About.tsx`):** `"use client"`. Words rendered as `<span data-word>` on SSR (fully readable). After mount, `useEffect` calls `measureLines()` which groups words by `offsetTop` (4px tolerance) into visual lines. Each line renders as `relative block overflow-hidden` with a static text span underneath and an `absolute inset-0 bg-white` `motion.span` on top. The white panel starts at `x: 0%` (covering text) and slides to `±105%` on scroll-in. Uses `variants` with `hidden: { transition: { duration: 0 } }` for instant off-screen reset so the animation replays every time the section enters the viewport (`once: false`).
 
@@ -186,17 +195,17 @@ Reduced motion: `useReducedMotion()` from `hooks/useReducedMotion.ts` — pass `
 
 **FormatCard pixel mask reveal (`FormatCard.tsx`):** `"use client"`. Image covered by a single `<canvas>` (replaces old 450-div grid — 1 DOM node vs 2,700). `PixelCanvas` component: `ResizeObserver` syncs buffer at `displaySize × devicePixelRatio`; draws white cover before animation starts. On `inView`, one `rAF` loop runs: red pass first (behind), white pass on top — per-cell opacities computed from `Float32Array` timings built once at start. `BLEED` (≤0.18s early white start) exposes red below the scan line; `JITTER` (≤0.1s extra red delay) leaves fragments above it. Loop cancels itself after all cells clear. Tunables: `GRID / REVEAL_DELAY / REVEAL_DURATION / WHITE_DUR / RED_DUR / JITTER / BLEED`. `onOpen?: () => void` prop — clicking the image or "Learn more" button opens `FormatDrawer`. Image paths: `/${name.toLowerCase().replace(/\s/g, "-")}.png`. Reduced motion skips canvas entirely. **Learn more button** matches Framer's "ye" component (`j75bhEKWC`): `w-full bg-grey/30 rounded-lg p-6 md:p-[30px]`, space-between flex, `ArrowCircleUpRight` from `@phosphor-icons/react` (24px, nudges up-right on hover), hover bg `grey/50`.
 
-**FormatDrawer (`features/formats/FormatDrawer.tsx`):** `"use client"`. Fixed right panel `w-full lg:max-w-[50vw]` (`z-60`, `bg-black`), scrollable. Slides in `x: "100%" → 0` ease `[0.22, 1, 0.36, 1]` over 450ms. Backdrop (`bg-black/70 backdrop-blur-sm`, `z-60`) closes on click. `Escape` key closes; body scroll locked while open. `Formats.tsx` holds `active: Format | null` state. Layout (top→bottom): header row (format name left + close button right) · image (`w-full md:max-w-[55%]`, `aspect-[4/3]`, `object-cover`) · four `Row` content sections (dot label left + content right, stacks vertically on mobile via `flex-col md:grid`) · "Apply to speak" CTA link (`w-4/5` centered, `bg-red`, → `/speaker-form`) · footer `mt-auto`. **Four rows:** "What it is" (paragraph) · "Best for" (list with `border-white/70` item dividers) · "How it runs" (2-col table: label `text-white/25` | value `text-white/50`, `divide-white/70`) · "What to expect" (3 blocks: bold title + dim description). All row separators use `border-white/70`. Data comes from `formats.data.ts` — `FormatMeta` + `ExpectBlock` types, rich content for all 6 formats (heroTitle, tag, drawerTitle, whatItIs, bestFor, meta, expect).
+**FormatDrawer (`features/formats/FormatDrawer.tsx`):** `"use client"`. Fixed right panel `w-full lg:max-w-[50vw]` (`z-60`, `bg-black`), scrollable. Slides in `x: "100%" → 0` ease `[0.22, 1, 0.36, 1]` over 450ms. Backdrop (`bg-black/70 backdrop-blur-sm`, `z-60`) closes on click. `Escape` key closes; body scroll locked while open. `Formats.tsx` holds `active: Format | null` state. Layout (top→bottom): header row (format name left + close button right) · image (`w-full md:max-w-[55%]`, `aspect-[4/3]`, `object-cover`) · four `Row` content sections (dot label left + content right, stacks vertically on mobile via `flex-col md:grid`) · "Apply to speak" CTA (`w-4/5` centered, `bg-red`) calls `onApply` prop to open `SpeakerFormModal` · footer `mt-auto`. **Four rows:** "What it is" (paragraph) · "Best for" (list with `border-white/70` item dividers) · "How it runs" (2-col table: label `text-white/25` | value `text-white/50`, `divide-white/70`) · "What to expect" (3 blocks: bold title + dim description). All row separators use `border-white/70`. Data comes from `formats.data.ts` — `FormatMeta` + `ExpectBlock` types, rich content for all 6 formats (heroTitle, tag, drawerTitle, whatItIs, bestFor, meta, expect).
 
 ---
 
-## Speaker Form — `/speaker-form`
+## Speaker Form — Modal
 
-Session submission flow for potential speakers. Separate page, not part of the homepage scroll.
+Session submission flow for potential speakers. Rendered as an overlay modal on the homepage — no separate page.
 
-**Page:** `app/speaker-form/page.tsx` — `bg-red min-h-screen`, `pt-16 pb-24 md:pt-24`. Wraps everything in `mx-auto max-w-5xl`. Has a `←  Back` link (top-left, `<Link href="/">`, touch-friendly `py-2 px-1`, nudges arrow on hover) above the form card.
+**Modal (`features/speaker-form/SpeakerFormModal.tsx`):** `"use client"`. `AnimatePresence` wraps a full-screen backdrop (`bg-black/80 backdrop-blur-sm`, `z-[9998]`). Inner card: `max-w-2xl rounded-2xl bg-grey/60 backdrop-blur-md`. Slides in `opacity: 0, y: 24 → 1, 0` (350ms, `[0.22, 1, 0.36, 1]`). Back button (arrow SVG) calls `onClose`. Body scroll locked via `document.body.style.overflow = "hidden"` while open. Renders `<SpeakerForm onSuccess={onClose} />`. Triggered by `onApply` callbacks on `Nav`, `Hero`, and `Formats` — state lives in `HomeClient`.
 
-**Form (`features/speaker-form/SpeakerForm.tsx`):** `"use client"`. `react-hook-form` + `zodResolver`. Card is `bg-black/70 backdrop-blur-md border-white/20`. `speakerType` defaults to `undefined` — form is hidden until a type is selected. Selecting a type reveals an animated **Continue** button (slides up, bouncing arrow). Clicking Continue locks the radios (disabled + unselected fades to 25% opacity) and reveals the full form with a `y: 0, opacity: 1` entrance. `defaultValues` cast as `DefaultValues<SessionSubmissionFormValues>` to satisfy the discriminated union type. `gcx@eg.dk` rendered as `<a href="mailto:gcx@eg.dk">`. On submit: loading state + disabled button → POST `/api/speaker-submission` → `SuccessModal` (5s countdown + `useRouter` redirect to `/`) or inline error.
+**Form (`features/speaker-form/SpeakerForm.tsx`):** `"use client"`. `react-hook-form` + `zodResolver`. Card is `bg-black/70 backdrop-blur-md border-white/20`. `speakerType` defaults to `undefined` — form is hidden until a type is selected. Selecting a type reveals an animated **Continue** button (slides up, bouncing arrow). Clicking Continue locks the radios (disabled + unselected fades to 25% opacity) and reveals the full form with a `y: 0, opacity: 1` entrance. `defaultValues` cast as `DefaultValues<SessionSubmissionFormValues>` to satisfy the discriminated union type. `gcx@eg.dk` rendered as `<a href="mailto:gcx@eg.dk">`. On submit: loading state + disabled button → POST `/api/speaker-submission` → `SuccessModal` (5s countdown + calls `onSuccess`) or inline error.
 
 **Validation (`lib/validation/schema.ts`):** Zod v4. `z.discriminatedUnion("speakerType", [...])` intersected with `sessionFields`. All fields have explicit error messages and `max()` caps. Shared between client (RHF resolver) and server (`safeParse` in route).
 
@@ -204,7 +213,7 @@ Session submission flow for potential speakers. Separate page, not part of the h
 
 **Email (`lib/email/`):**
 - `transporter.ts` — `SESv2Client` from `@aws-sdk/client-sesv2`. Region hardcoded to `eu-central-1`. No credentials passed — SDK auto-picks the ECS task role via the container credentials endpoint. Exports `sendMail({ to, subject, html, text? })` helper (returns `MessageId`), `SENDER_EMAIL` (`no-reply@insights.amplify.egsync.com`), and `ADMIN_EMAILS` (from env, comma-separated string array).
-- `send-session-submission.ts` — `sendSessionSubmissionEmail` (admin notification) + `sendConfirmationEmail` (applicant). **Currently in demo mode** — both functions log to console and return without sending. To go live: remove the `console.log` lines and uncomment the `sendMail(...)` calls marked in each function. Confirmation email is a fully responsive dark HTML template (`max-width:640px`, `#1e1e1e` bg) with: red header bar (`#e81a2d`) holding `decoded-logo-email.png` + `EG Logo V2 1.png` left and `Decoded Icon V3 1.png` overflowing right (`margin-bottom:-28px`); "WE GOT YOUR PROPOSAL" heading; body copy; "WHAT HAPPENS NEXT" 3-step table (Review / Discovery call / Confirmed); CTA banner (`rgb(72,18,18)`) with `gcx@eg.dk` + "GET IN TOUCH" button; footer (black, `decoded-logo-email.png` + copyright). **Fonts:** `@font-face` loads `ClashDisplay-Semibold.woff2` (headings) and `Aileron-600/700.woff2` (body) from `${NEXT_PUBLIC_BASE_URL}/fonts/` — falls back to `sans-serif`. **Responsive:** `@media (max-width:600px)` stacks step rows and CTA banner columns.
+- `send-session-submission.ts` — `sendSessionSubmissionEmail` (admin notification) + `sendConfirmationEmail` (applicant). Both functions call `sendMail` directly — **emails are live**. Confirmation email is a fully responsive dark HTML template (`max-width:640px`, `#1e1e1e` bg) with: red header bar (`#e81a2d`) holding `decoded-logo-email.png` + `EG Logo V2 1.png` left and `Decoded Icon V3 1.png` overflowing right (`margin-bottom:-28px`); "WE GOT YOUR PROPOSAL" heading; body copy; "WHAT HAPPENS NEXT" 3-step table (Review / Discovery call / Confirmed); CTA banner (`rgb(72,18,18)`) with `gcx@eg.dk` + "GET IN TOUCH" button; footer (black, `decoded-logo-email.png` + copyright). **Fonts:** `@font-face` loads `ClashDisplay-Semibold.woff2` (headings) and `Aileron-600/700.woff2` (body) from `${NEXT_PUBLIC_BASE_URL}/fonts/` — falls back to `sans-serif`. **Responsive:** `@media (max-width:600px)` stacks step rows and CTA banner columns.
 
 **Required env vars:**
 ```

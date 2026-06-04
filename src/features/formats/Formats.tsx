@@ -37,12 +37,12 @@ const introVariants: Variants = {
   }
 };
 
-export function Formats() {
+export function Formats({ onApply }: { onApply?: () => void }) {
   const [active, setActive] = useState<Format | null>(null);
 
   return (
     <>
-    <FormatDrawer format={active} onClose={() => setActive(null)} />
+    <FormatDrawer format={active} onClose={() => setActive(null)} onApply={onApply} />
     <section
       id="formats"
       className="relative z-10 bg-red px-5 py-24 text-white md:px-8 md:py-[100px] overflow-x-hidden"
@@ -68,7 +68,7 @@ export function Formats() {
           {/* Intro paragraph echoes up directly behind it */}
           <motion.p 
             variants={introVariants}
-            className="max-w-[467px] font-body text-[16px] font-semibold leading-relaxed text-black"
+            className="max-w-[467px] font-body font-semibold text-[clamp(16px,2vw,20px)] text-black"
           >
             {formatsContent.intro}
           </motion.p>

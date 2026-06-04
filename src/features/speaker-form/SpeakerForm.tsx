@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useForm, Controller, type DefaultValues } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "framer-motion";
@@ -10,8 +9,7 @@ import {
   type SessionSubmissionFormValues,
 } from "@/lib/validation/schema";
 
-function SuccessModal() {
-  const router = useRouter();
+function SuccessModal({ onDone }: { onDone: () => void }) {
   const [count, setCount] = useState(5);
 
   useEffect(() => {
@@ -19,14 +17,14 @@ function SuccessModal() {
       setCount((c) => {
         if (c <= 1) {
           clearInterval(interval);
-          router.push("/");
+          onDone();
           return 0;
         }
         return c - 1;
       });
     }, 1000);
     return () => clearInterval(interval);
-  }, [router]);
+  }, [onDone]);
 
   return (
     <motion.div
@@ -51,20 +49,20 @@ function SuccessModal() {
           <p className="font-body text-white/60">Check your inbox for a confirmation. We'll be in touch soon.</p>
         </div>
         <p className="font-body text-sm text-white/40">
-          Redirecting to home in <span className="text-white/70">{count}</span>s…
+          Closing in <span className="text-white/70">{count}</span>s…
         </p>
         <button
-          onClick={() => router.push("/")}
+          onClick={onDone}
           className="w-full rounded-lg bg-red py-3 font-body font-semibold text-white transition-opacity hover:opacity-90"
         >
-          Go home now
+          Close
         </button>
       </motion.div>
     </motion.div>
   );
 }
 
-export function SpeakerForm() {
+export function SpeakerForm({ onSuccess }: { onSuccess?: () => void }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -123,7 +121,7 @@ export function SpeakerForm() {
 
   return (
     <>
-    <AnimatePresence>{submitted && <SuccessModal />}</AnimatePresence>
+    <AnimatePresence>{submitted && <SuccessModal onDone={() => { setSubmitted(false); onSuccess?.(); }} />}</AnimatePresence>
     <div className="mx-auto max-w-5xl rounded-2xl border border-white/20 bg-black/70 p-8 backdrop-blur-md md:p-10">
       <div className="mb-10">
         <h1 className="font-headline text-3xl font-semibold tracking-tight text-white">Speak at Decoded</h1>

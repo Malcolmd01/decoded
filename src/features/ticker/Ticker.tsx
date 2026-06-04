@@ -24,7 +24,7 @@ export function Ticker() {
   return (
     <section
       aria-hidden
-      className="relative z-10 flex h-[110px] items-center overflow-hidden bg-white"
+      className="relative z-10 flex h-[75px] items-center overflow-hidden bg-white"
     >
       <motion.div
         className="flex w-max"

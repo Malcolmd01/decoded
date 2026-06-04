@@ -1,3 +1,9 @@
 export const aboutContent = {
-  text: "DECODED BRINGS YOUR TEAM AND INDUSTRY EXPERTS TOGETHER. MONTHLY SESSIONS IN MULTIPLE FORMATS. ONLINE OR IN-PERSON.",
+  lines: [
+    "Decoded is a knowledge-sharing",
+    "programme that puts the right people",
+    "in front of the right audience.",
+    "Real conversations about what matters",
+    "in tech, product, and engineering today."
+    ],
 } as const;

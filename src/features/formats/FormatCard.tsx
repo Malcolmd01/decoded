@@ -3,9 +3,9 @@
 import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { useAnimate, useInView, motion } from "framer-motion";
-import { ArrowCircleUpRight } from "@phosphor-icons/react";
-import { BrutalismIcon } from "@/components";
+import { ArrowCircleUpRightIcon } from "@phosphor-icons/react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { formatImageSrc } from "./formats.data";
 import type { Format } from "./formats.data";
 
 // ─── How the pixel reveal works ──────────────────────────────────────────────
@@ -166,49 +166,42 @@ export function FormatCard({ format, priority = false, index, onOpen }: Props) {
   return (
     <motion.article
       ref={articleRef}
-      className="grid w-full grid-cols-1 gap-10 rounded-2xl bg-black p-5 text-white md:grid-cols-2 md:gap-16 md:p-[30px]"
+      className="grid w-full grid-cols-1  gap-10 rounded-2xl bg-black p-5 text-white md:grid-cols-2 md:gap-16 md:p-[30px]"
     >
       <div ref={scope} className="contents">
-        <div className="order-last flex flex-col justify-between gap-8 h-full md:order-first md:self-start">
-          <div className="flex flex-col gap-[8px]">
-
-            <h3 data-animate-text className="font-headline text-3xl font-semibold leading-[1.05] tracking-tight md:text-4xl opacity-0 uppercase">
-              {format.name}
-            </h3>
-          
-          <p data-animate-text className="font-body text-[16px] font-normal leading-relaxed text-white md:text-lg opacity-0">
-            {format.description}
-          </p>
-</div>
-          {onOpen && (
-            <button
-              data-animate-text
-              onClick={onOpen}
-              className="group flex w-full items-center justify-between rounded-lg bg-grey/30 p-6 font-body font-semibold text-white opacity-0 transition-colors hover:bg-grey/50 md:p-[30px]"
-            >
-              Learn more
-              <ArrowCircleUpRight className="h-6 w-6 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" weight="regular" />
-            </button>
-          )}
-        </div>
-
         <div
           className="relative aspect-square w-full overflow-hidden rounded-lg"
-          onClick={onOpen}
-          role={onOpen ? "button" : undefined}
-          tabIndex={onOpen ? 0 : undefined}
-          aria-label={onOpen ? `Learn more about ${format.name}` : undefined}
-          onKeyDown={onOpen ? (e) => { if (e.key === "Enter" || e.key === " ") onOpen(); } : undefined}
-          style={{ cursor: onOpen ? "pointer" : undefined }}
         >
           <Image
-            src={`/${format.name.toLowerCase().replace(/\s/g, "-")}.png`}
+            src={formatImageSrc(format.name)}
             fill alt="" aria-hidden
             sizes="(min-width: 768px) 50vw, 100vw"
             className="object-cover"
             priority={priority}
           />
           {!reduced && <PixelCanvas play={inView} />}
+        </div>
+
+        <div className="flex flex-col justify-between gap-8 h-full md:self-start md:gap-16">
+          <div className="flex flex-col gap-[8px]">
+            <h3 data-animate-text className="font-headline text-3xl font-semibold leading-[1.05] tracking-tight md:text-4xl opacity-0 uppercase">
+              {format.name}
+            </h3>
+            <p data-animate-text className="font-body text-[16px] font-normal leading-relaxed text-white md:text-lg opacity-0">
+              {format.description}
+            </p>
+          </div>
+          {onOpen && (
+            <button
+              data-animate-text
+              onClick={onOpen}
+              aria-label={`Learn more about ${format.name}`}
+              className="group flex w-full items-center justify-between rounded-lg bg-grey/30 p-6 font-body font-semibold text-white opacity-0 transition-colors hover:bg-grey/50 md:p-[30px]"
+            >
+              Learn more
+              <ArrowCircleUpRightIcon className="h-6 w-6 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" weight="regular" />
+            </button>
+          )}
         </div>
       </div>
     </motion.article>

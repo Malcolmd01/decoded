@@ -21,7 +21,7 @@ function scrollTo(href: string) {
   if (el) el.scrollIntoView({ behavior: "smooth" });
 }
 
-export function Nav() {
+export function Nav({ onApply }: { onApply?: () => void }) {
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -54,7 +54,7 @@ export function Nav() {
     >
       {/* Nav pill */}
       <nav
-        className={`relative flex w-full max-w-[1440px] items-center justify-between rounded-3xl p-3 transition-[background-color,backdrop-filter] duration-300 ease-in-out ${
+        className={`relative flex w-full max-w-[1440px] items-center justify-between rounded-[12px] p-3 transition-[background-color,backdrop-filter] duration-300 ease-in-out ${
           scrolled || menuOpen ? "bg-black/70 backdrop-blur-md" : ""
         }`}
         aria-label="Main navigation"
@@ -88,9 +88,9 @@ export function Nav() {
         </ul>
 
         {/* Desktop CTA */}
-        <a href="/speaker-form" className="hidden md:block">
-          <Button variant="light">Apply to speak</Button>
-        </a>
+        <Button variant="light" onClick={onApply} className="hidden md:block">
+          Apply to speak
+        </Button>
 
         {/* Burger — mobile only */}
         <button
@@ -143,13 +143,12 @@ export function Nav() {
               transition={{ duration: 0.18, delay: 0.06 + links.length * 0.05 }}
               className="px-4 pb-4"
             >
-              <a
-                href="/speaker-form"
-                onClick={() => setMenuOpen(false)}
+              <button
+                onClick={() => { setMenuOpen(false); onApply?.(); }}
                 className="block w-full rounded-2xl bg-white py-4 text-center font-body text-base font-bold text-black transition-colors duration-150 hover:bg-off-white"
               >
                 Apply to speak
-              </a>
+              </button>
             </motion.div>
           </motion.div>
         )}

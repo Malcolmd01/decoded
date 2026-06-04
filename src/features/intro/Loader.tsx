@@ -15,6 +15,7 @@ export function Loader({ onComplete }: LoaderProps) {
   const [done, setDone]       = useState(false);
   const [visible, setVisible] = useState(!prefersReduced);
   const onCompleteRef = useRef(onComplete);
+  const holdRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => { onCompleteRef.current = onComplete; });
 
   // Reset and replay only when navigating back to this page from a different pathname.
@@ -47,7 +48,7 @@ export function Loader({ onComplete }: LoaderProps) {
       onUpdate: (v) => setCount(Math.round(v)),
       onComplete: () => {
         setDone(true);
-        setTimeout(() => {
+        holdRef.current = setTimeout(() => {
           document.body.style.overflow = "";
           setVisible(false);
           onCompleteRef.current?.();
@@ -55,7 +56,11 @@ export function Loader({ onComplete }: LoaderProps) {
       },
     });
 
-    return () => { controls.stop(); document.body.style.overflow = ""; };
+    return () => {
+      controls.stop();
+      document.body.style.overflow = "";
+      if (holdRef.current) clearTimeout(holdRef.current);
+    };
   }, [prefersReduced, resetKey]);
 
   return (

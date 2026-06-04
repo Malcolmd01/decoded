@@ -1,3 +1,7 @@
+export function formatImageSrc(name: string): string {
+  return `/${name.toLowerCase().replace(/\s/g, "-")}.png`;
+}
+
 export type FormatMeta = {
   duration: string;
   speakers: string;
@@ -24,7 +28,7 @@ export type Format = {
 export const formatsContent = {
   title: "PICK YOUR FORMAT. WE FILL THE ROOM",
   intro:
-    "Six thoughtfully designed formats to suit the speaker, the subject, and the experience you want to create. We can mix and match formats to make the session your own.",
+    "Six thoughtfully designed formats to suit the speaker, the subject, and the experience you want to create.",
   formats: [
     {
       name: "Tech Talks",

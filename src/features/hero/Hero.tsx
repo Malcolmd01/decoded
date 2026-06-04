@@ -17,7 +17,7 @@ const FADE_TRANSITION = {
   ease: [0.4, 0, 0.2, 1] as const,
 };
 
-export function Hero() {
+export function Hero({ onApply }: { onApply?: () => void }) {
   const reduced = useReducedMotion();
 
   const fadeIn = (delay: number) =>
@@ -53,14 +53,9 @@ export function Hero() {
           </motion.h1>
           <motion.div {...fadeIn(BUTTON_DELAY)}>
             
-            <a
-            // href="https://forms.cloud.microsoft/e/YM7Wky1aAG"
-            href="/speaker-form"
-            >
-              <Button variant="light" aria-label={heroContent.cta}>
-                {heroContent.cta}
-              </Button>
-            </a>
+            <Button variant="light" onClick={onApply}>
+              {heroContent.cta}
+            </Button>
           </motion.div>
         </div>
       </div>

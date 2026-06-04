@@ -1,29 +1,33 @@
-import { Hero } from "@/features/hero";
+import dynamic from "next/dynamic";
+import { HomeClient } from "./HomeClient";
 import { About } from "@/features/about";
 import { Ticker } from "@/features/ticker";
-import { Formats } from "@/features/formats";
-import { Reasons } from "@/features/reasons";
-import { Faq } from "@/features/faq";
 import { Footer } from "@/features/footer";
-import { Loader } from "@/features/intro";
-import { Nav } from "@/features/nav/Nav";
+
+const Reasons = dynamic(() =>
+  import("@/features/reasons").then((m) => ({ default: m.Reasons }))
+);
+const Faq = dynamic(() =>
+  import("@/features/faq").then((m) => ({ default: m.Faq }))
+);
+
 export default function Home() {
   return (
-    <>
-      <Loader />
-      <Nav />
-      <main className="flex flex-1 flex-col pb-[680px] md:pb-[650px]">
-      <Hero />
-      <div className="relative">
-        <About />
-        <Ticker />
-        <Formats />
-        <Ticker />
-        <Reasons />
-        <Faq />
-      </div>
-      <Footer />
-    </main>
-    </>
+    <HomeClient
+      before={
+        <>
+          <About />
+          <Ticker />
+        </>
+      }
+      after={
+        <>
+          <Ticker />
+          <Reasons />
+          <Faq />
+        </>
+      }
+      footer={<Footer />}
+    />
   );
 }

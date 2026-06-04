@@ -3,16 +3,16 @@
 import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
-import Link from "next/link";
+import { formatImageSrc } from "./formats.data";
 import type { Format, FormatMeta } from "./formats.data";
 
-type Props = { format: Format | null; onClose: () => void };
+type Props = { format: Format | null; onClose: () => void; onApply?: () => void };
 
 type RowProps = { label: string; children: React.ReactNode };
 
 function Row({ label, children }: RowProps) {
   return (
-    <div className="flex flex-col gap-3 border-t border-white/70 py-6 md:grid md:grid-cols-[140px_1fr] md:gap-12 md:py-8">
+    <div className="flex flex-col gap-5 border-t border-white/20 py-6 md:grid md:grid-cols-[140px_1fr] md:gap-12 md:py-8">
       <div className="flex items-center h-fit gap-2.5">
         <span className="mt-[3px] size-2 shrink-0 rounded-full bg-white/25" />
         <span className="font-headline uppercase text-sm font-medium text-off-white">{label}</span>
@@ -40,7 +40,7 @@ const META_KEYS: (keyof FormatMeta)[] = [
   "moderation",
 ];
 
-export function FormatDrawer({ format, onClose }: Props) {
+export function FormatDrawer({ format, onClose, onApply }: Props) {
   // Lock body scroll while open
   useEffect(() => {
     if (!format) return;
@@ -59,9 +59,7 @@ export function FormatDrawer({ format, onClose }: Props) {
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
-  const imageSrc = format
-    ? `/${format.name.toLowerCase().replace(/\s/g, "-")}.png`
-    : "";
+  const imageSrc = format ? formatImageSrc(format.name) : "";
 
   return (
     <AnimatePresence>
@@ -69,7 +67,7 @@ export function FormatDrawer({ format, onClose }: Props) {
         <>
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 z-60 bg-black/50 backdrop-blur-sm "
+            className="fixed inset-0 z-60 bg-black/50 backdrop-blur-xs"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -78,17 +76,20 @@ export function FormatDrawer({ format, onClose }: Props) {
             aria-hidden
           />
 
-          {/* Drawer panel */}
+          {/* Drawer panel — overflow-hidden so scroll recalc doesn't run during animation */}
           <motion.aside
             role="dialog"
             aria-modal
             aria-label={format.name}
-            className="fixed right-0 top-0 z-60 flex h-full w-full flex-col overflow-y-auto backdrop-blur-sm bg-black/100  lg:max-w-[60vw]"
+            className="fixed right-0 top-0 z-60 h-full w-full border-l-2 lg:border-red/50 bg-black xl:max-w-[40vw] lg:max-w-[50vw]"
+            style={{ willChange: "transform" }}
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
-            transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
           >
+          {/* Scroll container is separate from the animated element */}
+          <div className="flex h-full flex-col overflow-y-auto">
             {/* Header */}
             <div className="flex shrink-0 items-center justify-between px-8 pt-8">
               <span className="font-headline text-[24px] lg:text-[36px] uppercase text-white">
@@ -97,7 +98,7 @@ export function FormatDrawer({ format, onClose }: Props) {
               <button
                 onClick={onClose}
                 aria-label="Close panel"
-                className="flex h-8 w-8 items-center justify-center text-white/80 transition-colors hover:text-white"
+                className="flex h-8 w-8 items-center justify-center text-white/80 transition-colors hover:text-white" 
               >
                 <svg
                   viewBox="0 0 16 16"
@@ -113,23 +114,19 @@ export function FormatDrawer({ format, onClose }: Props) {
 
             {/* Image */}
             <div className="mt-6 px-8">
-              <div className="relative aspect-[4/3] w-full md:max-w-[55%]">
+              <div className="relative aspect-[4/3] w-full md:max-w-[75%]">
                 <Image
                   src={imageSrc}
                   alt={format.name}
                   fill
+                  sizes="(min-width: 1280px) 30vw, (min-width: 1024px) 37vw, 75vw"
                   className="rounded-sm object-cover"
                 />
               </div>
             </div>
 
             {/* Content rows */}
-            <motion.div
-              className="mt-6 px-8"
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-            >
+            <div className="mt-6 px-8">
               {/* What it is */}
               <Row label="What it is">
                 <p className="font-body text-[16px] leading-[1.7] text-white/70">
@@ -147,7 +144,7 @@ export function FormatDrawer({ format, onClose }: Props) {
                       className={
                         i === 0
                           ? "leading-[1.9]"
-                          : "mt-1.5 border-t border-white/70 pt-1.5 leading-[1.9]"
+                          : "mt-1.5 border-t border-white/50 pt-1.5 leading-[1.9]"
                       }
                     >
                       {item}
@@ -158,7 +155,7 @@ export function FormatDrawer({ format, onClose }: Props) {
 
               {/* How it runs */}
               <Row label="How it runs">
-                <div className="divide-y py-[-10px] divide-white/70">
+                <div className="divide-y divide-white/50">
                   {META_KEYS.map((key) => (
                     <div key={key} className="grid grid-cols-[100px_1fr] gap-4 py-3 sm:grid-cols-[140px_1fr]">
                       <span className="font-body text-md font-medium text-white/80 self-center">
@@ -187,17 +184,18 @@ export function FormatDrawer({ format, onClose }: Props) {
                   ))}
                 </div>
               </Row>
-            </motion.div>
+            </div>
 
             {/* Bottom CTA */}
             <div className="mt-auto flex justify-start w-full px-8 py-8">
-              <Link
-                href="/speaker-form"
+              <button
+                onClick={() => { onClose(); onApply?.(); }}
                 className="block w-full rounded-lg bg-red py-4 text-center font-body font-semibold text-white transition-opacity hover:opacity-90"
               >
                 Apply to speak
-              </Link>
+              </button>
             </div>
+          </div>
           </motion.aside>
         </>
       )}

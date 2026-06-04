@@ -8,7 +8,7 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const base =
-  "group relative inline-block h-[48px] overflow-hidden rounded-xl px-5 font-body font-semibold leading-[48px] tracking-tight text-sm md:h-[59px] md:px-6 md:leading-[59px] md:text-base";
+  "group relative inline-block h-[48px] overflow-hidden rounded-[8px] px-5 font-headline uppercase font-semibold leading-[48px] tracking-tight text-sm md:h-[59px] md:px-6 md:leading-[59px] md:text-base";
 
 const styles: Record<Variant, string> = {
   dark: "bg-black text-white",
@@ -17,7 +17,7 @@ const styles: Record<Variant, string> = {
 
 const overlay: Record<Variant, string> = {
   dark: "bg-white text-black",
-  light: "bg-black text-white",
+  light: "bg-red text-white",
 };
 
 export function Button({
